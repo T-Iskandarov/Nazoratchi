@@ -31,17 +31,27 @@ public partial class LoginWindow : Window
         if (_isFirstRun)
         {
             InstructionText.Text = "Yangi parol o'rnating:";
-            ConfirmPasswordBox.Visibility = Visibility.Visible;
+            ConfirmPasswordBorder.Visibility = Visibility.Visible;
             LoginButton.Content = "SAQLASH VA KIRISH";
             ResetButton.Visibility = Visibility.Collapsed;
         }
         else
         {
             InstructionText.Text = "Parolni kiriting:";
-            ConfirmPasswordBox.Visibility = Visibility.Collapsed;
+            ConfirmPasswordBorder.Visibility = Visibility.Collapsed;
             LoginButton.Content = "KIRISH";
             ResetButton.Visibility = Visibility.Visible;
         }
+    }
+
+    private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+    {
+        PasswordPlaceholder.Visibility = string.IsNullOrEmpty(PasswordBox.Password) ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void ConfirmPasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+    {
+        ConfirmPasswordPlaceholder.Visibility = string.IsNullOrEmpty(ConfirmPasswordBox.Password) ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void PasswordBox_KeyDown(object sender, KeyEventArgs e)
