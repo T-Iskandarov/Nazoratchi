@@ -32,7 +32,7 @@
             </Border>
 
             <!-- Native TabControl with Modern Segmented Tabs -->
-            <TabControl x:Name="SitesTabControl" Grid.Row="2" Background="Transparent" BorderThickness="0">
+            <TabControl x:Name="SitesTabControl" SelectionChanged="SitesTabControl_SelectionChanged" Grid.Row="2" Background="Transparent" BorderThickness="0">
                 <TabControl.Resources>
                     <Style TargetType="TabItem">
                         <Setter Property="Foreground" Value="#475569" />
@@ -65,6 +65,9 @@
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <materialDesign:PackIcon Kind="Cancel" Width="18" Height="18" Margin="0,0,8,0" VerticalAlignment="Center" />
                             <TextBlock Text="Qora ro'yxat" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center" />
+                            <Border x:Name="BlacklistActivePill" Background="#F0FDF4" BorderBrush="#BBF7D0" BorderThickness="1" CornerRadius="10" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center" Visibility="Visible">
+                                <TextBlock Text="Faol" Foreground="#16A34A" FontSize="11" FontWeight="Bold"/>
+                            </Border>
                         </StackPanel>
                     </TabItem.Header>
 
@@ -147,9 +150,9 @@
                                 BorderBrush="#EBF2FC" BorderThickness="1" Effect="{StaticResource CardElevationEffect}">
                             <StackPanel>
                                 <DockPanel Margin="0,0,0,14">
-                                    <!-- Modern Search Capsule -->
-                                    <Border DockPanel.Dock="Right" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1.5" 
-                                            CornerRadius="8" Height="38" Width="260" Padding="12,0" VerticalAlignment="Center">
+                                    <!-- Modern Search Capsule with Focus Ring -->
+                                    <Border DockPanel.Dock="Right" Style="{StaticResource ModernInputContainerStyle}"
+                                            Height="38" Width="260" Padding="12,0" VerticalAlignment="Center">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" />
@@ -186,32 +189,43 @@
                                     </StackPanel>
                                 </DockPanel>
 
-                                <DataGrid x:Name="BlacklistGrid" AutoGenerateColumns="False" IsReadOnly="True" 
-                                          HeadersVisibility="Column" GridLinesVisibility="Horizontal" 
-                                          HorizontalGridLinesBrush="#F1F5F9" Background="Transparent" BorderThickness="0"
-                                          RowHeight="42" FontSize="13">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="Domen / Qoida" Binding="{Binding Domain}" Width="*" />
-                                        <DataGridTextColumn Header="Qo'shilgan sana" Binding="{Binding AddedDate}" Width="190" />
-                                        <DataGridTemplateColumn Width="110">
-                                            <DataGridTemplateColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <Button Content="O'chirish" Click="DeleteBlacklistSite_Click" 
-                                                            Padding="14,3" Height="28" FontSize="12" Cursor="Hand"
-                                                            Background="#FEE2E2" Foreground="#DC2626" BorderBrush="#FEE2E2">
-                                                        <Button.Template>
-                                                            <ControlTemplate TargetType="Button">
-                                                                <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
-                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                                                </Border>
-                                                            </ControlTemplate>
-                                                        </Button.Template>
-                                                    </Button>
-                                                </DataTemplate>
-                                            </DataGridTemplateColumn.CellTemplate>
-                                        </DataGridTemplateColumn>
-                                    </DataGrid.Columns>
-                                </DataGrid>
+                                <Grid MinHeight="140">
+                                    <DataGrid x:Name="BlacklistGrid" AutoGenerateColumns="False" IsReadOnly="True" 
+                                              HeadersVisibility="Column" GridLinesVisibility="Horizontal" 
+                                              HorizontalGridLinesBrush="#F1F5F9" Background="Transparent" BorderThickness="0"
+                                              RowHeight="42" FontSize="13">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Domen / Qoida" Binding="{Binding Domain}" Width="*" />
+                                            <DataGridTextColumn Header="Qo'shilgan sana" Binding="{Binding AddedDate}" Width="190" />
+                                            <DataGridTemplateColumn Width="110">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <Button Content="O'chirish" Click="DeleteBlacklistSite_Click" 
+                                                                Padding="14,3" Height="28" FontSize="12" Cursor="Hand"
+                                                                Background="#FEE2E2" Foreground="#DC2626" BorderBrush="#FEE2E2">
+                                                            <Button.Template>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                                    </Border>
+                                                                </ControlTemplate>
+                                                            </Button.Template>
+                                                        </Button>
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+
+                                    <!-- Empty State -->
+                                    <StackPanel x:Name="BlacklistEmptyState" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,24,0,24" Visibility="Collapsed">
+                                        <Border Background="#F1F5F9" Width="48" Height="48" CornerRadius="24" HorizontalAlignment="Center" Margin="0,0,0,10">
+                                            <materialDesign:PackIcon Kind="FormatListBulleted" Width="24" Height="24" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock Text="Qora ro'yxatda saytlar mavjud emas" FontWeight="SemiBold" FontSize="14" Foreground="#475569" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                        <TextBlock Text="Yuqoridagi maydonga domenlarni yozib &quot;Ro'yxatni saqlash&quot; tugmasini bosing" FontSize="12.5" Foreground="#94A3B8" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Grid>
                             </StackPanel>
                         </Border>
                     </StackPanel>
@@ -223,6 +237,9 @@
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <materialDesign:PackIcon Kind="CheckCircle" Width="18" Height="18" Margin="0,0,8,0" VerticalAlignment="Center" />
                             <TextBlock Text="Oq ro'yxat" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center" />
+                            <Border x:Name="WhitelistActivePill" Background="#F0FDF4" BorderBrush="#BBF7D0" BorderThickness="1" CornerRadius="10" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center" Visibility="Collapsed">
+                                <TextBlock Text="Faol" Foreground="#16A34A" FontSize="11" FontWeight="Bold"/>
+                            </Border>
                         </StackPanel>
                     </TabItem.Header>
 
@@ -305,9 +322,9 @@
                                 BorderBrush="#EBF2FC" BorderThickness="1" Effect="{StaticResource CardElevationEffect}">
                             <StackPanel>
                                 <DockPanel Margin="0,0,0,14">
-                                    <!-- Modern Search Capsule -->
-                                    <Border DockPanel.Dock="Right" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1.5" 
-                                            CornerRadius="8" Height="38" Width="260" Padding="12,0" VerticalAlignment="Center">
+                                    <!-- Modern Search Capsule with Focus Ring -->
+                                    <Border DockPanel.Dock="Right" Style="{StaticResource ModernInputContainerStyle}"
+                                            Height="38" Width="260" Padding="12,0" VerticalAlignment="Center">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" />
@@ -344,32 +361,43 @@
                                     </StackPanel>
                                 </DockPanel>
 
-                                <DataGrid x:Name="WhitelistGrid" AutoGenerateColumns="False" IsReadOnly="True" 
-                                          HeadersVisibility="Column" GridLinesVisibility="Horizontal" 
-                                          HorizontalGridLinesBrush="#F1F5F9" Background="Transparent" BorderThickness="0"
-                                          RowHeight="42" FontSize="13">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="Domen / Qoida" Binding="{Binding Domain}" Width="*" />
-                                        <DataGridTextColumn Header="Qo'shilgan sana" Binding="{Binding AddedDate}" Width="190" />
-                                        <DataGridTemplateColumn Width="110">
-                                            <DataGridTemplateColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <Button Content="O'chirish" Click="DeleteWhitelistSite_Click" 
-                                                            Padding="14,3" Height="28" FontSize="12" Cursor="Hand"
-                                                            Background="#FEE2E2" Foreground="#DC2626" BorderBrush="#FEE2E2">
-                                                        <Button.Template>
-                                                            <ControlTemplate TargetType="Button">
-                                                                <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
-                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                                                </Border>
-                                                            </ControlTemplate>
-                                                        </Button.Template>
-                                                    </Button>
-                                                </DataTemplate>
-                                            </DataGridTemplateColumn.CellTemplate>
-                                        </DataGridTemplateColumn>
-                                    </DataGrid.Columns>
-                                </DataGrid>
+                                <Grid MinHeight="140">
+                                    <DataGrid x:Name="WhitelistGrid" AutoGenerateColumns="False" IsReadOnly="True" 
+                                              HeadersVisibility="Column" GridLinesVisibility="Horizontal" 
+                                              HorizontalGridLinesBrush="#F1F5F9" Background="Transparent" BorderThickness="0"
+                                              RowHeight="42" FontSize="13">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Domen / Qoida" Binding="{Binding Domain}" Width="*" />
+                                            <DataGridTextColumn Header="Qo'shilgan sana" Binding="{Binding AddedDate}" Width="190" />
+                                            <DataGridTemplateColumn Width="110">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <Button Content="O'chirish" Click="DeleteWhitelistSite_Click" 
+                                                                Padding="14,3" Height="28" FontSize="12" Cursor="Hand"
+                                                                Background="#FEE2E2" Foreground="#DC2626" BorderBrush="#FEE2E2">
+                                                            <Button.Template>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                                    </Border>
+                                                                </ControlTemplate>
+                                                            </Button.Template>
+                                                        </Button>
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+
+                                    <!-- Empty State -->
+                                    <StackPanel x:Name="WhitelistEmptyState" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,24,0,24" Visibility="Collapsed">
+                                        <Border Background="#F1F5F9" Width="48" Height="48" CornerRadius="24" HorizontalAlignment="Center" Margin="0,0,0,10">
+                                            <materialDesign:PackIcon Kind="CheckCircleOutline" Width="24" Height="24" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock Text="Oq ro'yxatda saytlar mavjud emas" FontWeight="SemiBold" FontSize="14" Foreground="#475569" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                        <TextBlock Text="Ruxsat beriladigan domenlarni kiritib &quot;Ro'yxatni saqlash&quot; tugmasini bosing" FontSize="12.5" Foreground="#94A3B8" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Grid>
                             </StackPanel>
                         </Border>
                     </StackPanel>

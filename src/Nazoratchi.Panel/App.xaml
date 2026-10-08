@@ -118,6 +118,103 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+
+            <!-- MODERN INPUT CONTAINER STYLE WITH DYNAMIC FOCUS RING -->
+            <Style x:Key="ModernInputContainerStyle" TargetType="Border">
+                <Setter Property="Background" Value="White"/>
+                <Setter Property="BorderBrush" Value="{StaticResource BorderDefault}"/>
+                <Setter Property="BorderThickness" Value="1.5"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Style.Triggers>
+                    <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                        <Setter Property="BorderBrush" Value="{StaticResource BrandPrimary}"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <!-- MODERN DATAGRID HEADER AND ROW STYLES -->
+            <Style TargetType="{x:Type DataGridColumnHeader}">
+                <Setter Property="Background" Value="#F8FAFC"/>
+                <Setter Property="Foreground" Value="#475569"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="FontSize" Value="12.5"/>
+                <Setter Property="Padding" Value="14,10"/>
+                <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                <Setter Property="BorderBrush" Value="#E2E8F0"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+            </Style>
+
+            <Style TargetType="{x:Type DataGridRow}">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                <Setter Property="BorderBrush" Value="#F1F5F9"/>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#F8FAFC"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <!-- MODERN SLIM SCROLLBAR -->
+            <Style x:Key="ModernScrollBarThumb" TargetType="{x:Type Thumb}">
+                <Setter Property="OverridesDefaultStyle" Value="True"/>
+                <Setter Property="IsTabStop" Value="False"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type Thumb}">
+                            <Border x:Name="ThumbBorder" Background="#CBD5E1" CornerRadius="3"/>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="ThumbBorder" Property="Background" Value="#94A3B8"/>
+                                </Trigger>
+                                <Trigger Property="IsDragging" Value="True">
+                                    <Setter TargetName="ThumbBorder" Property="Background" Value="#64748B"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style TargetType="{x:Type ScrollBar}">
+                <Setter Property="OverridesDefaultStyle" Value="True"/>
+                <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
+                <Setter Property="Foreground" Value="#CBD5E1"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Width" Value="6"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type ScrollBar}">
+                            <Grid x:Name="Bg" SnapsToDevicePixels="True">
+                                <Track x:Name="PART_Track" IsDirectionReversed="True" IsEnabled="{TemplateBinding IsMouseOver}">
+                                    <Track.Thumb>
+                                        <Thumb Style="{StaticResource ModernScrollBarThumb}" Margin="0,2,0,2"/>
+                                    </Track.Thumb>
+                                </Track>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="Orientation" Value="Horizontal">
+                        <Setter Property="Width" Value="Auto"/>
+                        <Setter Property="Height" Value="6"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type ScrollBar}">
+                                    <Grid x:Name="Bg" SnapsToDevicePixels="True">
+                                        <Track x:Name="PART_Track" IsDirectionReversed="False">
+                                            <Track.Thumb>
+                                                <Thumb Style="{StaticResource ModernScrollBarThumb}" Margin="2,0,2,0"/>
+                                            </Track.Thumb>
+                                        </Track>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

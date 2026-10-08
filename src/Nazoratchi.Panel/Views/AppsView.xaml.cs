@@ -39,6 +39,11 @@ public partial class AppsView : UserControl
                 .ToList();
 
             BlockedAppsGrid.ItemsSource = appLogs;
+            if (BlockedAppsEmptyState != null)
+            {
+                BlockedAppsEmptyState.Visibility = appLogs.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+                BlockedAppsGrid.Visibility = appLogs.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+            }
         }
         catch
         {

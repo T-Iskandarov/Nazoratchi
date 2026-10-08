@@ -9,7 +9,7 @@
         FontFamily="Segoe UI"
         TextElement.Foreground="#0F172A">
     <Grid>
-        <!-- Background Soft Waves and Gradients matching Image 1 -->
+        <!-- Background Soft Waves and Gradients -->
         <Grid.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                 <GradientStop Color="#F1F6FE" Offset="0" />
@@ -18,7 +18,7 @@
             </LinearGradientBrush>
         </Grid.Background>
 
-        <!-- Background Decorative Organic Shapes (Image 1 top-left and bottom-right waves) -->
+        <!-- Background Decorative Organic Shapes -->
         <Canvas IsHitTestVisible="False" ClipToBounds="True">
             <!-- Top-left large wave -->
             <Path Data="M -80,-80 C 120,-80 230,40 180,210 C 130,270 -80,240 -80,240 Z" Opacity="0.75">
@@ -69,29 +69,55 @@
                            FontSize="15" FontWeight="SemiBold" Foreground="#1E293B" 
                            Margin="0,0,0,10" HorizontalAlignment="Left" />
 
-                <!-- Password Box -->
-                <Border x:Name="PasswordBorder" Background="White" BorderBrush="#0066FF" 
-                        BorderThickness="1.5" CornerRadius="8" Height="46" Margin="0,0,0,14">
-                    <Grid>
-                        <TextBlock x:Name="PasswordPlaceholder" Text="Parol" Foreground="#94A3B8" FontSize="15" 
-                                   VerticalAlignment="Center" Margin="14,0,0,0" IsHitTestVisible="False" />
-                        <PasswordBox x:Name="PasswordBox" Background="Transparent" BorderThickness="0" 
-                                     FontSize="16" Foreground="#0F172A" VerticalContentAlignment="Center" 
-                                     Padding="14,0,14,0" KeyDown="PasswordBox_KeyDown" 
-                                     PasswordChanged="PasswordBox_PasswordChanged" />
+                <!-- Password Box with Focus Ring and Eye Toggle -->
+                <Border x:Name="PasswordBorder" Style="{StaticResource ModernInputContainerStyle}" Height="44" Margin="0,0,0,14">
+                    <Grid Margin="12,0,8,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock x:Name="PasswordPlaceholder" Text="Parol" Foreground="#94A3B8" FontSize="14" 
+                                       VerticalAlignment="Center" IsHitTestVisible="False" />
+                            <PasswordBox x:Name="PasswordBox" Background="Transparent" BorderThickness="0" 
+                                         FontSize="15" Foreground="#0F172A" VerticalContentAlignment="Center" 
+                                         Padding="0" KeyDown="PasswordBox_KeyDown" 
+                                         PasswordChanged="PasswordBox_PasswordChanged" />
+                            <TextBox x:Name="PasswordTextBox" Background="Transparent" BorderThickness="0" 
+                                     FontSize="15" Foreground="#0F172A" VerticalContentAlignment="Center" 
+                                     Padding="0" KeyDown="PasswordBox_KeyDown" Visibility="Collapsed" 
+                                     TextChanged="PasswordTextBox_TextChanged" />
+                        </Grid>
+                        <Button x:Name="TogglePasswordButton" Grid.Column="1" Click="TogglePassword_Click" Width="34" Height="34" Cursor="Hand"
+                                Background="Transparent" BorderBrush="Transparent" Style="{StaticResource MaterialDesignFlatButton}" Padding="0">
+                            <materialDesign:PackIcon x:Name="PasswordEyeIcon" Kind="EyeOutline" Width="18" Height="18" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
                     </Grid>
                 </Border>
 
-                <!-- Confirm Password Box (First run only) -->
-                <Border x:Name="ConfirmPasswordBorder" Background="White" BorderBrush="#0066FF" 
-                        BorderThickness="1.5" CornerRadius="8" Height="46" Margin="0,0,0,14" Visibility="Collapsed">
-                    <Grid>
-                        <TextBlock x:Name="ConfirmPasswordPlaceholder" Text="Parolni tasdiqlang" Foreground="#94A3B8" FontSize="15" 
-                                   VerticalAlignment="Center" Margin="14,0,0,0" IsHitTestVisible="False" />
-                        <PasswordBox x:Name="ConfirmPasswordBox" Background="Transparent" BorderThickness="0" 
-                                     FontSize="16" Foreground="#0F172A" VerticalContentAlignment="Center" 
-                                     Padding="14,0,14,0" KeyDown="PasswordBox_KeyDown" 
-                                     PasswordChanged="ConfirmPasswordBox_PasswordChanged" />
+                <!-- Confirm Password Box (First run only) with Focus Ring and Eye Toggle -->
+                <Border x:Name="ConfirmPasswordBorder" Style="{StaticResource ModernInputContainerStyle}" Height="44" Margin="0,0,0,14" Visibility="Collapsed">
+                    <Grid Margin="12,0,8,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock x:Name="ConfirmPasswordPlaceholder" Text="Parolni tasdiqlang" Foreground="#94A3B8" FontSize="14" 
+                                       VerticalAlignment="Center" IsHitTestVisible="False" />
+                            <PasswordBox x:Name="ConfirmPasswordBox" Background="Transparent" BorderThickness="0" 
+                                         FontSize="15" Foreground="#0F172A" VerticalContentAlignment="Center" 
+                                         Padding="0" KeyDown="PasswordBox_KeyDown" 
+                                         PasswordChanged="ConfirmPasswordBox_PasswordChanged" />
+                            <TextBox x:Name="ConfirmPasswordTextBox" Background="Transparent" BorderThickness="0" 
+                                     FontSize="15" Foreground="#0F172A" VerticalContentAlignment="Center" 
+                                     Padding="0" KeyDown="PasswordBox_KeyDown" Visibility="Collapsed" 
+                                     TextChanged="ConfirmPasswordTextBox_TextChanged" />
+                        </Grid>
+                        <Button x:Name="ToggleConfirmPasswordButton" Grid.Column="1" Click="ToggleConfirmPassword_Click" Width="34" Height="34" Cursor="Hand"
+                                Background="Transparent" BorderBrush="Transparent" Style="{StaticResource MaterialDesignFlatButton}" Padding="0">
+                            <materialDesign:PackIcon x:Name="ConfirmPasswordEyeIcon" Kind="EyeOutline" Width="18" Height="18" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
                     </Grid>
                 </Border>
 
@@ -101,13 +127,13 @@
 
                 <!-- Login Button -->
                 <Button x:Name="LoginButton" Content="KIRISH" Click="LoginButton_Click" 
-                        Height="46" FontSize="15" FontWeight="Bold" Foreground="White" 
+                        Height="44" FontSize="14" FontWeight="Bold" Foreground="White" 
                         Cursor="Hand" Margin="0,4,0,0">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="BtnBorder" Background="#0066FF" CornerRadius="8">
                                 <Border.Effect>
-                                    <DropShadowEffect Color="#0066FF" BlurRadius="14" Direction="270" ShadowDepth="4" Opacity="0.32" />
+                                    <DropShadowEffect Color="#0066FF" BlurRadius="14" Direction="270" ShadowDepth="3" Opacity="0.28" />
                                 </Border.Effect>
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
@@ -143,7 +169,7 @@
                 </Button>
             </StackPanel>
 
-            <!-- Bottom Footer matching Image 1 -->
+            <!-- Bottom Footer -->
             <Border Grid.Row="1" BorderBrush="#E2E8F0" BorderThickness="0,1,0,0" Background="#F8FAFC" Padding="0,14,0,14">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Image Source="/Assets/cubo-logo.png" Height="22" Margin="0,0,12,0" VerticalAlignment="Center" 

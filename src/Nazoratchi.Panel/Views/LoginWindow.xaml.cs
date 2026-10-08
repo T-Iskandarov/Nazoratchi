@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Navigation;
 using Nazoratchi.Core;
@@ -14,6 +15,8 @@ public partial class LoginWindow : Window
     private readonly ConfigManager _configManager;
     private readonly PasswordService _passwordService;
     private bool _isFirstRun;
+    private bool _isPasswordRevealed;
+    private bool _isConfirmPasswordRevealed;
 
     public LoginWindow()
     {
@@ -54,6 +57,60 @@ public partial class LoginWindow : Window
         ConfirmPasswordPlaceholder.Visibility = string.IsNullOrEmpty(ConfirmPasswordBox.Password) ? Visibility.Visible : Visibility.Collapsed;
     }
 
+    private void PasswordTextBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        PasswordPlaceholder.Visibility = string.IsNullOrEmpty(PasswordTextBox.Text) ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void ConfirmPasswordTextBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        ConfirmPasswordPlaceholder.Visibility = string.IsNullOrEmpty(ConfirmPasswordTextBox.Text) ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void TogglePassword_Click(object sender, RoutedEventArgs e)
+    {
+        _isPasswordRevealed = !_isPasswordRevealed;
+        if (_isPasswordRevealed)
+        {
+            PasswordTextBox.Text = PasswordBox.Password;
+            PasswordBox.Visibility = Visibility.Collapsed;
+            PasswordTextBox.Visibility = Visibility.Visible;
+            PasswordEyeIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.EyeOffOutline;
+            PasswordTextBox.Focus();
+            PasswordTextBox.CaretIndex = PasswordTextBox.Text.Length;
+        }
+        else
+        {
+            PasswordBox.Password = PasswordTextBox.Text;
+            PasswordTextBox.Visibility = Visibility.Collapsed;
+            PasswordBox.Visibility = Visibility.Visible;
+            PasswordEyeIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.EyeOutline;
+            PasswordBox.Focus();
+        }
+    }
+
+    private void ToggleConfirmPassword_Click(object sender, RoutedEventArgs e)
+    {
+        _isConfirmPasswordRevealed = !_isConfirmPasswordRevealed;
+        if (_isConfirmPasswordRevealed)
+        {
+            ConfirmPasswordTextBox.Text = ConfirmPasswordBox.Password;
+            ConfirmPasswordBox.Visibility = Visibility.Collapsed;
+            ConfirmPasswordTextBox.Visibility = Visibility.Visible;
+            ConfirmPasswordEyeIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.EyeOffOutline;
+            ConfirmPasswordTextBox.Focus();
+            ConfirmPasswordTextBox.CaretIndex = ConfirmPasswordTextBox.Text.Length;
+        }
+        else
+        {
+            ConfirmPasswordBox.Password = ConfirmPasswordTextBox.Text;
+            ConfirmPasswordTextBox.Visibility = Visibility.Collapsed;
+            ConfirmPasswordBox.Visibility = Visibility.Visible;
+            ConfirmPasswordEyeIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.EyeOutline;
+            ConfirmPasswordBox.Focus();
+        }
+    }
+
     private void PasswordBox_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter)
@@ -65,6 +122,10 @@ public partial class LoginWindow : Window
     private void LoginButton_Click(object sender, RoutedEventArgs e)
     {
         ErrorMessage.Visibility = Visibility.Collapsed;
+
+        // Sync visible text if eye was toggled
+        if (_isPasswordRevealed) PasswordBox.Password = PasswordTextBox.Text;
+        if (_isConfirmPasswordRevealed) ConfirmPasswordBox.Password = ConfirmPasswordTextBox.Text;
 
         if (_isFirstRun)
         {
@@ -142,6 +203,7 @@ public partial class LoginWindow : Window
         {
             MessageBox.Show("Parol muvaffaqiyatli tiklandi! Yangi parol bilan kiring.", "Ma'lumot", MessageBoxButton.OK, MessageBoxImage.Information);
             PasswordBox.Clear();
+            PasswordTextBox.Clear();
             PasswordBox.Focus();
         }
     }

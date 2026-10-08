@@ -89,24 +89,35 @@
                     <TextBlock Text="So'nggi bloklangan dasturlar" FontSize="18" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
                 </StackPanel>
 
-                <DataGrid x:Name="BlockedAppsGrid" AutoGenerateColumns="False" IsReadOnly="True" 
-                          HeadersVisibility="Column" GridLinesVisibility="Horizontal" 
-                          HorizontalGridLinesBrush="#F1F5F9" Background="Transparent" BorderThickness="0"
-                          RowHeight="42" FontSize="13">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Vaqt" Binding="{Binding Timestamp}" Width="180" />
-                        <DataGridTextColumn Header="Dastur nomi" Binding="{Binding Detail}" Width="*" />
-                        <DataGridTemplateColumn Header="Natija" Width="120">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Border Background="#FEE2E2" CornerRadius="6" Padding="10,3" HorizontalAlignment="Left" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding Result}" Foreground="#DC2626" FontSize="12" FontWeight="SemiBold" />
-                                    </Border>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
+                <Grid MinHeight="140">
+                    <DataGrid x:Name="BlockedAppsGrid" AutoGenerateColumns="False" IsReadOnly="True" 
+                              HeadersVisibility="Column" GridLinesVisibility="Horizontal" 
+                              HorizontalGridLinesBrush="#F1F5F9" Background="Transparent" BorderThickness="0"
+                              RowHeight="42" FontSize="13">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Vaqt" Binding="{Binding Timestamp}" Width="180" />
+                            <DataGridTextColumn Header="Dastur nomi" Binding="{Binding Detail}" Width="*" />
+                            <DataGridTemplateColumn Header="Natija" Width="120">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#FEE2E2" CornerRadius="6" Padding="10,3" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Result}" Foreground="#DC2626" FontSize="12" FontWeight="SemiBold" />
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Empty State -->
+                    <StackPanel x:Name="BlockedAppsEmptyState" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,24,0,24" Visibility="Collapsed">
+                        <Border Background="#F0FDF4" Width="48" Height="48" CornerRadius="24" HorizontalAlignment="Center" Margin="0,0,0,10">
+                            <materialDesign:PackIcon Kind="ShieldCheckOutline" Width="24" Height="24" Foreground="#16A34A" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="Bloklangan dasturlar mavjud emas" FontWeight="SemiBold" FontSize="14" Foreground="#475569" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                        <TextBlock Text="Tizim dasturlar o'rnatilishi va o'chirilishini nazorat qilmoqda" FontSize="12.5" Foreground="#94A3B8" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
             </DockPanel>
         </Border>
     </Grid>

@@ -42,6 +42,7 @@ public partial class LogsView : UserControl
         {
             _logs.Add(ToModel(log));
         }
+        UpdateEmptyState();
     }
 
     private static LogModel ToModel(LogEntry entry) => new()
@@ -88,6 +89,7 @@ public partial class LogsView : UserControl
         {
             _logs.Add(ToModel(log));
         }
+        UpdateEmptyState();
     }
 
     private void ClearLogsButton_Click(object sender, RoutedEventArgs e)
@@ -97,6 +99,16 @@ public partial class LogsView : UserControl
         {
             _logService.ClearLogs();
             _logs.Clear();
+            UpdateEmptyState();
+        }
+    }
+
+    private void UpdateEmptyState()
+    {
+        if (LogsEmptyState != null)
+        {
+            LogsEmptyState.Visibility = _logs.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            LogsGrid.Visibility = _logs.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
         }
     }
 }

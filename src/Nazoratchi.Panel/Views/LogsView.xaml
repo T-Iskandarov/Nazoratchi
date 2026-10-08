@@ -21,7 +21,7 @@
                 BorderBrush="#EBF2FC" BorderThickness="1" Effect="{StaticResource CardElevationEffect}">
             <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <!-- Start Date -->
-                <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1.5" CornerRadius="8" Height="40" Padding="10,0" Margin="0,0,12,8">
+                <Border Style="{StaticResource ModernInputContainerStyle}" Height="40" Padding="10,0" Margin="0,0,12,8">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <materialDesign:PackIcon Kind="CalendarMonthOutline" Width="18" Height="18" Foreground="#64748B" VerticalAlignment="Center" Margin="0,0,8,0"/>
                         <DatePicker x:Name="StartDatePicker" Width="130" BorderThickness="0" Background="Transparent" 
@@ -30,7 +30,7 @@
                 </Border>
 
                 <!-- End Date -->
-                <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1.5" CornerRadius="8" Height="40" Padding="10,0" Margin="0,0,12,8">
+                <Border Style="{StaticResource ModernInputContainerStyle}" Height="40" Padding="10,0" Margin="0,0,12,8">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <materialDesign:PackIcon Kind="CalendarMonthOutline" Width="18" Height="18" Foreground="#64748B" VerticalAlignment="Center" Margin="0,0,8,0"/>
                         <DatePicker x:Name="EndDatePicker" Width="130" BorderThickness="0" Background="Transparent" 
@@ -39,7 +39,7 @@
                 </Border>
 
                 <!-- Type Selector -->
-                <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1.5" CornerRadius="8" Height="40" Padding="10,0" Margin="0,0,16,8">
+                <Border Style="{StaticResource ModernInputContainerStyle}" Height="40" Padding="10,0" Margin="0,0,16,8">
                     <ComboBox x:Name="TypeComboBox" Width="130" BorderThickness="0" Background="Transparent" 
                               VerticalAlignment="Center" FontSize="13" SelectionChanged="FilterChanged">
                         <ComboBoxItem Content="Barchasi" IsSelected="True" />
@@ -69,25 +69,36 @@
         <!-- Results Table Card -->
         <Border Grid.Row="2" Background="White" CornerRadius="16" Padding="24,20" 
                 BorderBrush="#EBF2FC" BorderThickness="1" Effect="{StaticResource CardElevationEffect}">
-            <DataGrid x:Name="LogsGrid" AutoGenerateColumns="False" IsReadOnly="True" 
-                      HeadersVisibility="Column" GridLinesVisibility="Horizontal" 
-                      HorizontalGridLinesBrush="#F1F5F9" Background="Transparent" BorderThickness="0"
-                      RowHeight="42" FontSize="13">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Vaqt" Binding="{Binding Timestamp}" Width="180" />
-                    <DataGridTextColumn Header="Tur" Binding="{Binding Type}" Width="110" />
-                    <DataGridTextColumn Header="Tafsilot" Binding="{Binding Detail}" Width="*" />
-                    <DataGridTemplateColumn Header="Natija" Width="120">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Border Background="#FEE2E2" CornerRadius="6" Padding="10,3" HorizontalAlignment="Left" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding Result}" Foreground="#DC2626" FontSize="12" FontWeight="SemiBold" />
-                                </Border>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                </DataGrid.Columns>
-            </DataGrid>
+            <Grid MinHeight="140">
+                <DataGrid x:Name="LogsGrid" AutoGenerateColumns="False" IsReadOnly="True" 
+                          HeadersVisibility="Column" GridLinesVisibility="Horizontal" 
+                          HorizontalGridLinesBrush="#F1F5F9" Background="Transparent" BorderThickness="0"
+                          RowHeight="42" FontSize="13">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Vaqt" Binding="{Binding Timestamp}" Width="180" />
+                        <DataGridTextColumn Header="Tur" Binding="{Binding Type}" Width="110" />
+                        <DataGridTextColumn Header="Tafsilot" Binding="{Binding Detail}" Width="*" />
+                        <DataGridTemplateColumn Header="Natija" Width="120">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border Background="#FEE2E2" CornerRadius="6" Padding="10,3" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Result}" Foreground="#DC2626" FontSize="12" FontWeight="SemiBold" />
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- Empty State -->
+                <StackPanel x:Name="LogsEmptyState" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,24,0,24" Visibility="Collapsed">
+                    <Border Background="#F1F5F9" Width="48" Height="48" CornerRadius="24" HorizontalAlignment="Center" Margin="0,0,0,10">
+                        <materialDesign:PackIcon Kind="ClockOutline" Width="24" Height="24" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="Hech qanday log yozuvlari topilmadi" FontWeight="SemiBold" FontSize="14" Foreground="#475569" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                    <TextBlock Text="Belgilangan sanalar oralig'ida yoki tanlangan tur bo'yicha hodisalar yo'q" FontSize="12.5" Foreground="#94A3B8" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
         </Border>
     </Grid>
 </UserControl>

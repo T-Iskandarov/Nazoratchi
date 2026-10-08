@@ -35,11 +35,13 @@ public partial class SitesView : UserControl
             {
                 BlacklistRadio.IsChecked = true;
                 SitesTabControl.SelectedIndex = 0;
+                UpdateActivePills(true);
             }
             else
             {
                 WhitelistRadio.IsChecked = true;
                 SitesTabControl.SelectedIndex = 1;
+                UpdateActivePills(false);
             }
 
             // Load sites
@@ -61,6 +63,27 @@ public partial class SitesView : UserControl
         }
     }
 
+    private void UpdateActivePills(bool isBlacklist)
+    {
+        if (BlacklistActivePill != null)
+            BlacklistActivePill.Visibility = isBlacklist ? Visibility.Visible : Visibility.Collapsed;
+        if (WhitelistActivePill != null)
+            WhitelistActivePill.Visibility = isBlacklist ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    private void SitesTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isInitializing || e.Source != SitesTabControl) return;
+        if (SitesTabControl.SelectedIndex == 0 && BlacklistRadio.IsChecked != true)
+        {
+            BlacklistRadio.IsChecked = true;
+        }
+        else if (SitesTabControl.SelectedIndex == 1 && WhitelistRadio.IsChecked != true)
+        {
+            WhitelistRadio.IsChecked = true;
+        }
+    }
+
     private void ActiveMode_Changed(object sender, RoutedEventArgs e)
     {
         if (_isInitializing) return;
@@ -70,11 +93,13 @@ public partial class SitesView : UserControl
         {
             config.FilterMode = FilterMode.BlackList;
             SitesTabControl.SelectedIndex = 0;
+            UpdateActivePills(true);
         }
         else
         {
             config.FilterMode = FilterMode.WhiteList;
             SitesTabControl.SelectedIndex = 1;
+            UpdateActivePills(false);
         }
 
         _configManager.SaveConfig(config);
@@ -189,6 +214,11 @@ public partial class SitesView : UserControl
         {
             BlacklistCountBadge.Text = $"{_blacklistRules.Count} ta";
         }
+        if (BlacklistEmptyState != null)
+        {
+            BlacklistEmptyState.Visibility = items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            BlacklistGrid.Visibility = items.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+        }
     }
     #endregion
 
@@ -300,6 +330,11 @@ public partial class SitesView : UserControl
         if (WhitelistCountBadge != null)
         {
             WhitelistCountBadge.Text = $"{_whitelistRules.Count} ta";
+        }
+        if (WhitelistEmptyState != null)
+        {
+            WhitelistEmptyState.Visibility = items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            WhitelistGrid.Visibility = items.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
         }
     }
     #endregion

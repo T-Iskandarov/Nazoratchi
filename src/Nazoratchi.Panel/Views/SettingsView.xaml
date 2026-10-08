@@ -30,7 +30,7 @@
                         </StackPanel>
 
                         <!-- Old Password Field -->
-                        <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1.5" CornerRadius="8" Height="44" Margin="0,0,0,12">
+                        <Border Style="{StaticResource ModernInputContainerStyle}" Height="44" Margin="0,0,0,12">
                             <Grid Margin="12,0,8,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
@@ -53,7 +53,7 @@
                         </Border>
 
                         <!-- New Password Field -->
-                        <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1.5" CornerRadius="8" Height="44" Margin="0,0,0,12">
+                        <Border Style="{StaticResource ModernInputContainerStyle}" Height="44" Margin="0,0,0,12">
                             <Grid Margin="12,0,8,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
@@ -76,7 +76,7 @@
                         </Border>
 
                         <!-- Confirm Password Field -->
-                        <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1.5" CornerRadius="8" Height="44" Margin="0,0,0,16">
+                        <Border Style="{StaticResource ModernInputContainerStyle}" Height="44" Margin="0,0,0,16">
                             <Grid Margin="12,0,8,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
@@ -131,7 +131,7 @@
                         </StackPanel>
 
                         <!-- DNS Input Field -->
-                        <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1.5" CornerRadius="8" Height="44" Margin="0,0,0,16">
+                        <Border Style="{StaticResource ModernInputContainerStyle}" Height="44" Margin="0,0,0,16">
                             <Grid Margin="12,0,12,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
