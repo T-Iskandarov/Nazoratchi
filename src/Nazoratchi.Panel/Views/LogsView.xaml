@@ -1,0 +1,48 @@
+<UserControl x:Class="Nazoratchi.Panel.Views.LogsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Loglar va Hisobotlar" FontSize="28" FontWeight="Bold" Margin="0,0,0,24" />
+
+        <materialDesign:Card Grid.Row="1" Padding="16" Margin="0,0,0,16">
+            <StackPanel Orientation="Horizontal">
+                <DatePicker x:Name="StartDatePicker" materialDesign:HintAssist.Hint="Boshlanish sanasi" Width="150" Margin="0,0,16,0" />
+                <DatePicker x:Name="EndDatePicker" materialDesign:HintAssist.Hint="Tugash sanasi" Width="150" Margin="0,0,16,0" />
+                <ComboBox x:Name="TypeComboBox" materialDesign:HintAssist.Hint="Tur" Width="150" Margin="0,0,16,0" SelectionChanged="FilterChanged">
+                    <ComboBoxItem Content="Barchasi" IsSelected="True" />
+                    <ComboBoxItem Content="Saytlar" />
+                    <ComboBoxItem Content="Dasturlar" />
+                </ComboBox>
+                <Button Content="FILTRLASH" Click="FilterButton_Click" Margin="0,0,16,0" />
+                <Button Content="TOZALASH" Click="ClearLogsButton_Click" Style="{StaticResource MaterialDesignOutlinedButton}" Foreground="Red" BorderBrush="Red" />
+            </StackPanel>
+        </materialDesign:Card>
+
+        <materialDesign:Card Grid.Row="2" Padding="16">
+            <DataGrid x:Name="LogsGrid" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Vaqt" Binding="{Binding Timestamp}" Width="150" />
+                    <DataGridTextColumn Header="Tur" Binding="{Binding Type}" Width="100" />
+                    <DataGridTextColumn Header="Tafsilot" Binding="{Binding Detail}" Width="*" />
+                    
+                    <DataGridTemplateColumn Header="Natija" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Result}" 
+                                           Foreground="{Binding Color}" 
+                                           FontWeight="Bold"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </materialDesign:Card>
+    </Grid>
+</UserControl>

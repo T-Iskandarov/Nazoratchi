@@ -1,0 +1,66 @@
+<Window x:Class="Nazoratchi.Panel.Views.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="Nazoratchi - Kirish" Height="560" Width="420"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Icon="/Assets/logo.png"
+        Background="#F1F5F9"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <materialDesign:Card Grid.Row="0" Width="320" VerticalAlignment="Center" Padding="32" Margin="0,20,0,0">
+            <StackPanel>
+                <Image Source="/Assets/logo.png" Width="64" Height="64" HorizontalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality" />
+                <TextBlock Text="Nazoratchi" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,12,0,24" />
+
+                <TextBlock x:Name="InstructionText" Text="Parolni kiriting:" Margin="0,0,0,8" FontSize="14" />
+                
+                <PasswordBox x:Name="PasswordBox" 
+                             materialDesign:HintAssist.Hint="Parol"
+                             Style="{StaticResource MaterialDesignFloatingHintPasswordBox}"
+                             FontSize="16"
+                             Margin="0,0,0,12"
+                             KeyDown="PasswordBox_KeyDown" />
+
+                <PasswordBox x:Name="ConfirmPasswordBox" 
+                             materialDesign:HintAssist.Hint="Parolni tasdiqlang"
+                             Style="{StaticResource MaterialDesignFloatingHintPasswordBox}"
+                             FontSize="16"
+                             Margin="0,0,0,12"
+                             Visibility="Collapsed"
+                             KeyDown="PasswordBox_KeyDown" />
+
+                <TextBlock x:Name="ErrorMessage" Foreground="#FF5252" TextWrapping="Wrap" Margin="0,0,0,8" Visibility="Collapsed" FontSize="13" />
+
+                <Button x:Name="LoginButton" Content="KIRISH" Click="LoginButton_Click" 
+                        Height="40" FontSize="15" Margin="0,8,0,0"
+                        Style="{StaticResource MaterialDesignRaisedButton}" />
+
+                <Button x:Name="ResetButton" Content="Parolni unutdingizmi?" 
+                        Click="ResetButton_Click"
+                        Style="{StaticResource MaterialDesignFlatButton}"
+                        Foreground="{DynamicResource MaterialDesignBodyLight}"
+                        FontSize="12" Margin="0,8,0,0"
+                        Visibility="Collapsed" />
+            </StackPanel>
+        </materialDesign:Card>
+
+        <!-- Footer with CUBO Logo -->
+        <StackPanel Grid.Row="1" HorizontalAlignment="Center" Margin="16" Orientation="Horizontal" VerticalAlignment="Center">
+            <Image Source="/Assets/cubo-logo.png" Height="22" Margin="0,0,8,0" VerticalAlignment="Center" 
+                   Cursor="Hand" MouseDown="CuboLogo_MouseDown" ToolTip="cubo.uz saytiga o'tish" RenderOptions.BitmapScalingMode="HighQuality"/>
+            <TextBlock Text="CUBO kompaniyasi | " Foreground="{DynamicResource MaterialDesignBodyLight}" VerticalAlignment="Center" />
+            <TextBlock VerticalAlignment="Center">
+                <Hyperlink NavigateUri="https://cubo.uz" RequestNavigate="Hyperlink_RequestNavigate">
+                    cubo.uz
+                </Hyperlink>
+            </TextBlock>
+        </StackPanel>
+    </Grid>
+</Window>

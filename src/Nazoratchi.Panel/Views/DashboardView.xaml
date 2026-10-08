@@ -1,0 +1,74 @@
+<UserControl x:Class="Nazoratchi.Panel.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Top Header with Refresh Button -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,24">
+            <Button DockPanel.Dock="Right" Click="RefreshButton_Click" 
+                    Style="{StaticResource MaterialDesignOutlinedButton}" 
+                    Padding="14,6" Height="38">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="Refresh" Width="20" Height="20" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="YANGILASH" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="13"/>
+                </StackPanel>
+            </Button>
+            <TextBlock Text="Bosh sahifa" FontSize="28" FontWeight="Bold" VerticalAlignment="Center" />
+        </DockPanel>
+
+        <!-- Summary Cards -->
+        <UniformGrid Grid.Row="1" Columns="4" Margin="0,0,0,24">
+            <materialDesign:Card Margin="0,0,16,0" Padding="16">
+                <StackPanel>
+                    <TextBlock Text="Bugun bloklangan saytlar" TextWrapping="Wrap" Foreground="{DynamicResource MaterialDesignBodyLight}" FontSize="12" />
+                    <TextBlock x:Name="BlockedSitesCount" Text="0" FontSize="36" FontWeight="Bold" Margin="0,8,0,0" Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                </StackPanel>
+            </materialDesign:Card>
+
+            <materialDesign:Card Margin="0,0,16,0" Padding="16">
+                <StackPanel>
+                    <TextBlock Text="Bugun bloklangan dasturlar" TextWrapping="Wrap" Foreground="{DynamicResource MaterialDesignBodyLight}" FontSize="12" />
+                    <TextBlock x:Name="BlockedAppsCount" Text="0" FontSize="36" FontWeight="Bold" Margin="0,8,0,0" Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                </StackPanel>
+            </materialDesign:Card>
+
+            <materialDesign:Card Margin="0,0,16,0" Padding="16">
+                <StackPanel>
+                    <TextBlock Text="Filtrlash rejimi" TextWrapping="Wrap" Foreground="{DynamicResource MaterialDesignBodyLight}" FontSize="12" />
+                    <TextBlock x:Name="FilterModeText" Text="Qora ro'yxat" FontSize="22" FontWeight="Bold" Margin="0,12,0,0" Foreground="{DynamicResource PrimaryHueMidBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+            </materialDesign:Card>
+
+            <materialDesign:Card Padding="16">
+                <StackPanel>
+                    <TextBlock Text="Xizmat holati" TextWrapping="Wrap" Foreground="{DynamicResource MaterialDesignBodyLight}" FontSize="12" />
+                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                        <materialDesign:PackIcon x:Name="ServiceStatusIcon" Kind="CheckCircle" Foreground="#2E7D32" Width="28" Height="28" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock x:Name="ServiceStatusText" Text="Ishlamoqda" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </StackPanel>
+            </materialDesign:Card>
+        </UniformGrid>
+
+        <!-- Recent Logs -->
+        <materialDesign:Card Grid.Row="2" Padding="16">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Text="So'nggi faolliklar" FontSize="20" FontWeight="Bold" Margin="0,0,0,16" />
+                <DataGrid x:Name="RecentLogsGrid" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Vaqt" Binding="{Binding Timestamp}" Width="160" />
+                        <DataGridTextColumn Header="Tur" Binding="{Binding Type}" Width="100" />
+                        <DataGridTextColumn Header="Tafsilot" Binding="{Binding Detail}" Width="*" />
+                        <DataGridTextColumn Header="Natija" Binding="{Binding Result}" Width="120" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </DockPanel>
+        </materialDesign:Card>
+    </Grid>
+</UserControl>

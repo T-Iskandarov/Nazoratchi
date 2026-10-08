@@ -1,0 +1,38 @@
+<UserControl x:Class="Nazoratchi.Panel.Views.AppsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Dasturlarni bloklash" FontSize="28" FontWeight="Bold" Margin="0,0,0,24" />
+
+        <materialDesign:Card Grid.Row="1" Padding="16" Margin="0,0,0,16">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                    <TextBlock Text="Dastur o'rnatish va o'chirishni bloklash:" VerticalAlignment="Center" Margin="0,0,16,0" FontWeight="Bold" />
+                    <ToggleButton x:Name="AppBlockToggle" Checked="AppBlockToggle_CheckedChanged" Unchecked="AppBlockToggle_CheckedChanged" />
+                </StackPanel>
+                <TextBlock Text="Bu funksiya yoqilganda, o'quvchilar yangi dastur o'rnata olmaydi va mavjud dasturlarni o'chira olmaydi. Setup, install, uninstall, msi fayllar va Dasturlarni o'chirish oynasi bloklanadi." 
+                           TextWrapping="Wrap" Foreground="{DynamicResource MaterialDesignBodyLight}" />
+            </StackPanel>
+        </materialDesign:Card>
+
+        <materialDesign:Card Grid.Row="2" Padding="16">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Text="So'nggi bloklangan dasturlar" FontSize="20" FontWeight="Bold" Margin="0,0,0,16" />
+                <DataGrid x:Name="BlockedAppsGrid" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Vaqt" Binding="{Binding Timestamp}" Width="180" />
+                        <DataGridTextColumn Header="Dastur nomi" Binding="{Binding Detail}" Width="*" />
+                        <DataGridTextColumn Header="Natija" Binding="{Binding Result}" Width="120" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </DockPanel>
+        </materialDesign:Card>
+    </Grid>
+</UserControl>

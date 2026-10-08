@@ -1,0 +1,86 @@
+<Window x:Class="Nazoratchi.Panel.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="Nazoratchi — Boshqaruv paneli" MinHeight="600" MinWidth="900" Height="720" Width="1080"
+        WindowStartupLocation="CenterScreen"
+        Icon="/Assets/logo.png"
+        Background="{DynamicResource MaterialDesignPaper}"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}">
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Sidebar -->
+        <Border Grid.Column="0" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="0,0,1,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- Header with Nazoratchi Logo -->
+                <StackPanel Grid.Row="0" Margin="16,28,16,28" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Image Source="/Assets/logo.png" Width="36" Height="36" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality" />
+                    <TextBlock Text="Nazoratchi" FontSize="20" FontWeight="Bold" Margin="10,0,0,0" VerticalAlignment="Center" />
+                </StackPanel>
+
+                <!-- Navigation -->
+                <ListBox x:Name="NavListBox" Grid.Row="1" SelectionChanged="NavListBox_SelectionChanged" Background="Transparent" BorderThickness="0" Margin="0,16,0,0">
+                    <ListBoxItem Tag="Dashboard" Padding="16,12">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="ChartBar" Width="24" Height="24" Margin="0,0,16,0"/>
+                            <TextBlock Text="Bosh sahifa" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem Tag="Sites" Padding="16,12">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Web" Width="24" Height="24" Margin="0,0,16,0"/>
+                            <TextBlock Text="Saytlar" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem Tag="Apps" Padding="16,12">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Apps" Width="24" Height="24" Margin="0,0,16,0"/>
+                            <TextBlock Text="Dasturlar" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem Tag="Logs" Padding="16,12">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="History" Width="24" Height="24" Margin="0,0,16,0"/>
+                            <TextBlock Text="Loglar" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem Tag="Settings" Padding="16,12">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Cog" Width="24" Height="24" Margin="0,0,16,0"/>
+                            <TextBlock Text="Sozlamalar" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </ListBoxItem>
+                </ListBox>
+
+                <!-- Footer with CUBO Logo -->
+                <StackPanel Grid.Row="2" Margin="16" TextBlock.FontSize="12">
+                    <Border CornerRadius="6" Background="Transparent" Margin="0,0,0,8" HorizontalAlignment="Left"
+                            Cursor="Hand" MouseDown="CuboLogo_MouseDown" ToolTip="cubo.uz saytiga o'tish">
+                        <Image Source="/Assets/cubo-logo.png" Height="30" RenderOptions.BitmapScalingMode="HighQuality" />
+                    </Border>
+                    <TextBlock Text="Muallif: Tursunpo'lat Iskandarov" Foreground="{DynamicResource MaterialDesignBodyLight}" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                    <TextBlock Text="CUBO kompaniyasi tomonidan ishlab chiqilgan" Foreground="{DynamicResource MaterialDesignBodyLight}" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                    <TextBlock>
+                        <Hyperlink NavigateUri="https://cubo.uz" RequestNavigate="Hyperlink_RequestNavigate">
+                            cubo.uz
+                        </Hyperlink>
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <ContentControl x:Name="MainContent" Grid.Column="1" Margin="24" />
+    </Grid>
+</Window>

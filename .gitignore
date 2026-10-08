@@ -1,0 +1,21 @@
+## .NET / Visual Studio
+[Bb]in/
+[Oo]bj/
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.userprefs
+*.pidb
+*.booproj
+
+## Logs and Temp
+*.log
+_ReSharper*/
+*.VC.db
+*.VC.opendb
+
+## OS generated
+.DS_Store
+Thumbs.db
