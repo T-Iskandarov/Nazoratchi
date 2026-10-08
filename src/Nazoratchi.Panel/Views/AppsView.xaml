@@ -3,24 +3,22 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              FontFamily="Segoe UI">
-    <Grid>
+    <Grid Margin="0,0,8,0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- Header matching Image 4 -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16" VerticalAlignment="Center">
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,24" VerticalAlignment="Center">
             <materialDesign:PackIcon Kind="Apps" Width="28" Height="28" Foreground="#0066FF" VerticalAlignment="Center" Margin="0,0,10,0"/>
             <TextBlock Text="Dasturlarni bloklash" FontSize="26" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
         </StackPanel>
 
-        <!-- Top Card: App Guard Toggle matching Image 4 -->
-        <Border Grid.Row="1" Background="White" CornerRadius="14" Padding="24,20" Margin="0,0,0,16" BorderBrush="#EBF2FC" BorderThickness="1">
-            <Border.Effect>
-                <DropShadowEffect Color="#64748B" BlurRadius="16" Direction="270" ShadowDepth="3" Opacity="0.05" />
-            </Border.Effect>
+        <!-- Top Card: App Guard Toggle -->
+        <Border Grid.Row="1" Background="White" CornerRadius="16" Padding="24,20" Margin="0,0,0,24" 
+                BorderBrush="#EBF2FC" BorderThickness="1" Effect="{StaticResource CardElevationEffect}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -42,7 +40,7 @@
                 <TextBlock Grid.Row="0" Grid.Column="1" Text="Dastur o'rnatish va o'chirishni bloklash:" 
                            FontSize="16" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
 
-                <!-- Modern Pill Toggle Switch matching Image 4 -->
+                <!-- Modern Pill Toggle Switch -->
                 <ToggleButton x:Name="AppBlockToggle" Grid.Row="0" Grid.Column="2" 
                               Checked="AppBlockToggle_CheckedChanged" Unchecked="AppBlockToggle_CheckedChanged" 
                               Width="52" Height="30" Cursor="Hand" VerticalAlignment="Center">
@@ -80,14 +78,12 @@
             </Grid>
         </Border>
 
-        <!-- Bottom Card: Recent Blocked Apps Table matching Image 4 -->
-        <Border Grid.Row="2" Background="White" CornerRadius="14" Padding="20" BorderBrush="#EBF2FC" BorderThickness="1">
-            <Border.Effect>
-                <DropShadowEffect Color="#64748B" BlurRadius="16" Direction="270" ShadowDepth="3" Opacity="0.05" />
-            </Border.Effect>
+        <!-- Bottom Card: Recent Blocked Apps Table -->
+        <Border Grid.Row="2" Background="White" CornerRadius="16" Padding="24,20" 
+                BorderBrush="#EBF2FC" BorderThickness="1" Effect="{StaticResource CardElevationEffect}">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,16">
-                    <Border Background="#EFF6FF" Width="32" Height="32" CornerRadius="16" Margin="0,0,10,0">
+                    <Border Background="#EFF6FF" Width="36" Height="36" CornerRadius="18" Margin="0,0,12,0">
                         <materialDesign:PackIcon Kind="ClockOutline" Width="18" Height="18" Foreground="#0066FF" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <TextBlock Text="So'nggi bloklangan dasturlar" FontSize="18" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />

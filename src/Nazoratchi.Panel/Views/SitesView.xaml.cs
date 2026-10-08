@@ -156,7 +156,18 @@ public partial class SitesView : UserControl
 
     private void SearchBlacklist_TextChanged(object sender, TextChangedEventArgs e)
     {
-        UpdateBlacklistGrid(SearchBlacklistTextBox.Text.Trim());
+        var text = SearchBlacklistTextBox.Text;
+        if (SearchBlacklistPlaceholder != null)
+            SearchBlacklistPlaceholder.Visibility = string.IsNullOrEmpty(text) ? Visibility.Visible : Visibility.Collapsed;
+        if (ClearSearchBlacklistBtn != null)
+            ClearSearchBlacklistBtn.Visibility = string.IsNullOrEmpty(text) ? Visibility.Collapsed : Visibility.Visible;
+        UpdateBlacklistGrid(text.Trim());
+    }
+
+    private void ClearSearchBlacklist_Click(object sender, RoutedEventArgs e)
+    {
+        SearchBlacklistTextBox.Clear();
+        SearchBlacklistTextBox.Focus();
     }
 
     private void UpdateBlacklistGrid(string filter = "")
@@ -167,11 +178,17 @@ public partial class SitesView : UserControl
             query = query.Where(r => r.Domain.Contains(filter, StringComparison.OrdinalIgnoreCase));
         }
 
-        BlacklistGrid.ItemsSource = query.Select(r => new
+        var items = query.Select(r => new
         {
             Domain = r.Domain,
             AddedDate = r.AddedAt.ToString("yyyy-MM-dd HH:mm")
         }).ToList();
+
+        BlacklistGrid.ItemsSource = items;
+        if (BlacklistCountBadge != null)
+        {
+            BlacklistCountBadge.Text = $"{_blacklistRules.Count} ta";
+        }
     }
     #endregion
 
@@ -251,7 +268,18 @@ public partial class SitesView : UserControl
 
     private void SearchWhitelist_TextChanged(object sender, TextChangedEventArgs e)
     {
-        UpdateWhitelistGrid(SearchWhitelistTextBox.Text.Trim());
+        var text = SearchWhitelistTextBox.Text;
+        if (SearchWhitelistPlaceholder != null)
+            SearchWhitelistPlaceholder.Visibility = string.IsNullOrEmpty(text) ? Visibility.Visible : Visibility.Collapsed;
+        if (ClearSearchWhitelistBtn != null)
+            ClearSearchWhitelistBtn.Visibility = string.IsNullOrEmpty(text) ? Visibility.Collapsed : Visibility.Visible;
+        UpdateWhitelistGrid(text.Trim());
+    }
+
+    private void ClearSearchWhitelist_Click(object sender, RoutedEventArgs e)
+    {
+        SearchWhitelistTextBox.Clear();
+        SearchWhitelistTextBox.Focus();
     }
 
     private void UpdateWhitelistGrid(string filter = "")
@@ -262,11 +290,17 @@ public partial class SitesView : UserControl
             query = query.Where(r => r.Domain.Contains(filter, StringComparison.OrdinalIgnoreCase));
         }
 
-        WhitelistGrid.ItemsSource = query.Select(r => new
+        var items = query.Select(r => new
         {
             Domain = r.Domain,
             AddedDate = r.AddedAt.ToString("yyyy-MM-dd HH:mm")
         }).ToList();
+
+        WhitelistGrid.ItemsSource = items;
+        if (WhitelistCountBadge != null)
+        {
+            WhitelistCountBadge.Text = $"{_whitelistRules.Count} ta";
+        }
     }
     #endregion
 }

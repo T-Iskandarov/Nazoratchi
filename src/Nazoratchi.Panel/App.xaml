@@ -9,6 +9,115 @@
                 <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="Blue" SecondaryColor="LightBlue" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- DESIGN SYSTEM COLOR TOKENS -->
+            <SolidColorBrush x:Key="BrandPrimary" Color="#0066FF" />
+            <SolidColorBrush x:Key="BrandPrimaryHover" Color="#0052CC" />
+            <SolidColorBrush x:Key="BrandPrimaryPressed" Color="#003D99" />
+            <SolidColorBrush x:Key="BrandPrimarySoft" Color="#EFF6FF" />
+            
+            <SolidColorBrush x:Key="SurfaceBg" Color="#F8FAFC" />
+            <SolidColorBrush x:Key="SurfaceCard" Color="#FFFFFF" />
+            
+            <SolidColorBrush x:Key="TextPrimary" Color="#0F172A" />
+            <SolidColorBrush x:Key="TextSecondary" Color="#475569" />
+            <SolidColorBrush x:Key="TextMuted" Color="#94A3B8" />
+            
+            <SolidColorBrush x:Key="BorderDefault" Color="#E2E8F0" />
+            <SolidColorBrush x:Key="BorderFocus" Color="#0066FF" />
+            
+            <SolidColorBrush x:Key="StatusSuccess" Color="#16A34A" />
+            <SolidColorBrush x:Key="StatusSuccessBg" Color="#F0FDF4" />
+            <SolidColorBrush x:Key="StatusSuccessBorder" Color="#BBF7D0" />
+            
+            <SolidColorBrush x:Key="StatusDanger" Color="#DC2626" />
+            <SolidColorBrush x:Key="StatusDangerBg" Color="#FEF2F2" />
+            <SolidColorBrush x:Key="StatusDangerBorder" Color="#FECACA" />
+
+            <!-- COMMON CARD SHADOW -->
+            <DropShadowEffect x:Key="CardElevationEffect" Color="#0F172A" BlurRadius="16" Direction="270" ShadowDepth="2" Opacity="0.04" />
+            <DropShadowEffect x:Key="ButtonElevationEffect" Color="#0066FF" BlurRadius="12" Direction="270" ShadowDepth="3" Opacity="0.25" />
+
+            <!-- REUSABLE PRIMARY BUTTON STYLE -->
+            <Style x:Key="AppPrimaryButtonStyle" TargetType="Button">
+                <Setter Property="Height" Value="40" />
+                <Setter Property="Padding" Value="20,0" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="Foreground" Value="White" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="BtnBorder" Background="{StaticResource BrandPrimary}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="BtnBorder" Property="Background" Value="{StaticResource BrandPrimaryHover}" />
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="BtnBorder" Property="Background" Value="{StaticResource BrandPrimaryPressed}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- REUSABLE SECONDARY OUTLINED BUTTON STYLE -->
+            <Style x:Key="AppSecondaryButtonStyle" TargetType="Button">
+                <Setter Property="Height" Value="40" />
+                <Setter Property="Padding" Value="18,0" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="Foreground" Value="{StaticResource BrandPrimary}" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="BtnBorder" Background="White" BorderBrush="{StaticResource BrandPrimary}" BorderThickness="1.5" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="BtnBorder" Property="Background" Value="{StaticResource BrandPrimarySoft}" />
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="BtnBorder" Property="Background" Value="#DBEAFE" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- REUSABLE DANGER SOFT BUTTON STYLE -->
+            <Style x:Key="AppDangerSoftButtonStyle" TargetType="Button">
+                <Setter Property="Height" Value="40" />
+                <Setter Property="Padding" Value="18,0" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="Foreground" Value="{StaticResource StatusDanger}" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="BtnBorder" Background="{StaticResource StatusDangerBg}" BorderBrush="{StaticResource StatusDangerBorder}" BorderThickness="1.5" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="BtnBorder" Property="Background" Value="#FEE2E2" />
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="BtnBorder" Property="Background" Value="#FECACA" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
