@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              FontFamily="Segoe UI">
-    <Grid>
+    <Grid Margin="0,0,10,0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -15,69 +15,247 @@
             <TextBlock Text="Sozlamalar" FontSize="26" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
         </StackPanel>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <StackPanel>
-                <!-- Password Settings -->
-                <Border Background="White" CornerRadius="14" Padding="20" Margin="0,0,0,16" BorderBrush="#EBF2FC" BorderThickness="1">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="0,0,8,0">
+                <!-- Card 1: Password Settings matching Image 3 -->
+                <Border Background="White" CornerRadius="14" Padding="24,20" Margin="0,0,0,16" BorderBrush="#EBF2FC" BorderThickness="1">
                     <Border.Effect>
                         <DropShadowEffect Color="#64748B" BlurRadius="16" Direction="270" ShadowDepth="3" Opacity="0.05" />
                     </Border.Effect>
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                            <materialDesign:PackIcon Kind="LockOutline" Width="20" Height="20" Foreground="#0066FF" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <!-- Header with Circular Badge -->
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
+                            <Border Background="#EFF6FF" Width="44" Height="44" CornerRadius="22" VerticalAlignment="Center" Margin="0,0,14,0">
+                                <materialDesign:PackIcon Kind="LockOutline" Width="22" Height="22" Foreground="#0066FF" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
                             <TextBlock Text="Parolni o'zgartirish" FontSize="18" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
                         </StackPanel>
-                        <PasswordBox x:Name="OldPasswordBox" materialDesign:HintAssist.Hint="Joriy parol" Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" Margin="0,0,0,12" />
-                        <PasswordBox x:Name="NewPasswordBox" materialDesign:HintAssist.Hint="Yangi parol" Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" Margin="0,0,0,12" />
-                        <PasswordBox x:Name="ConfirmPasswordBox" materialDesign:HintAssist.Hint="Yangi parolni tasdiqlang" Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" Margin="0,0,0,16" />
-                        <Button Content="PAROLNI SAQLASH" Click="ChangePasswordButton_Click" HorizontalAlignment="Left" 
-                                Height="40" Padding="20,0" Background="#0066FF" BorderBrush="#0066FF" Foreground="White" FontWeight="Bold" />
+
+                        <!-- Old Password Field -->
+                        <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1.5" CornerRadius="8" Height="44" Margin="0,0,0,12">
+                            <Grid Margin="12,0,8,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <materialDesign:PackIcon Kind="KeyOutline" Width="20" Height="20" Foreground="#94A3B8" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <Grid Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock x:Name="OldPasswordPlaceholder" Text="Joriy parol" Foreground="#94A3B8" FontSize="14" VerticalAlignment="Center" IsHitTestVisible="False" />
+                                    <PasswordBox x:Name="OldPasswordBox" Background="Transparent" BorderThickness="0" FontSize="14" Foreground="#0F172A" VerticalContentAlignment="Center"
+                                                 PasswordChanged="OldPasswordBox_PasswordChanged" />
+                                    <TextBox x:Name="OldPasswordTextBox" Background="Transparent" BorderThickness="0" FontSize="14" Foreground="#0F172A" VerticalContentAlignment="Center"
+                                             Visibility="Collapsed" TextChanged="OldPasswordTextBox_TextChanged" />
+                                </Grid>
+                                <Button x:Name="ToggleOldPasswordButton" Grid.Column="2" Click="ToggleOldPassword_Click" Width="34" Height="34" Cursor="Hand"
+                                        Background="Transparent" BorderBrush="Transparent" Style="{StaticResource MaterialDesignFlatButton}" Padding="0">
+                                    <materialDesign:PackIcon x:Name="OldPasswordEyeIcon" Kind="EyeOutline" Width="20" Height="20" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+                            </Grid>
+                        </Border>
+
+                        <!-- New Password Field -->
+                        <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1.5" CornerRadius="8" Height="44" Margin="0,0,0,12">
+                            <Grid Margin="12,0,8,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <materialDesign:PackIcon Kind="LockOutline" Width="20" Height="20" Foreground="#94A3B8" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <Grid Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock x:Name="NewPasswordPlaceholder" Text="Yangi parol" Foreground="#94A3B8" FontSize="14" VerticalAlignment="Center" IsHitTestVisible="False" />
+                                    <PasswordBox x:Name="NewPasswordBox" Background="Transparent" BorderThickness="0" FontSize="14" Foreground="#0F172A" VerticalContentAlignment="Center"
+                                                 PasswordChanged="NewPasswordBox_PasswordChanged" />
+                                    <TextBox x:Name="NewPasswordTextBox" Background="Transparent" BorderThickness="0" FontSize="14" Foreground="#0F172A" VerticalContentAlignment="Center"
+                                             Visibility="Collapsed" TextChanged="NewPasswordTextBox_TextChanged" />
+                                </Grid>
+                                <Button x:Name="ToggleNewPasswordButton" Grid.Column="2" Click="ToggleNewPassword_Click" Width="34" Height="34" Cursor="Hand"
+                                        Background="Transparent" BorderBrush="Transparent" Style="{StaticResource MaterialDesignFlatButton}" Padding="0">
+                                    <materialDesign:PackIcon x:Name="NewPasswordEyeIcon" Kind="EyeOutline" Width="20" Height="20" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+                            </Grid>
+                        </Border>
+
+                        <!-- Confirm Password Field -->
+                        <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1.5" CornerRadius="8" Height="44" Margin="0,0,0,16">
+                            <Grid Margin="12,0,8,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <materialDesign:PackIcon Kind="LockCheckOutline" Width="20" Height="20" Foreground="#94A3B8" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <Grid Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock x:Name="ConfirmPasswordPlaceholder" Text="Yangi parolni tasdiqlang" Foreground="#94A3B8" FontSize="14" VerticalAlignment="Center" IsHitTestVisible="False" />
+                                    <PasswordBox x:Name="ConfirmPasswordBox" Background="Transparent" BorderThickness="0" FontSize="14" Foreground="#0F172A" VerticalContentAlignment="Center"
+                                                 PasswordChanged="ConfirmPasswordBox_PasswordChanged" />
+                                    <TextBox x:Name="ConfirmPasswordTextBox" Background="Transparent" BorderThickness="0" FontSize="14" Foreground="#0F172A" VerticalContentAlignment="Center"
+                                             Visibility="Collapsed" TextChanged="ConfirmPasswordTextBox_TextChanged" />
+                                </Grid>
+                                <Button x:Name="ToggleConfirmPasswordButton" Grid.Column="2" Click="ToggleConfirmPassword_Click" Width="34" Height="34" Cursor="Hand"
+                                        Background="Transparent" BorderBrush="Transparent" Style="{StaticResource MaterialDesignFlatButton}" Padding="0">
+                                    <materialDesign:PackIcon x:Name="ConfirmPasswordEyeIcon" Kind="EyeOutline" Width="20" Height="20" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+                            </Grid>
+                        </Border>
+
+                        <!-- Action Row -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Click="ChangePasswordButton_Click" Height="42" Padding="20,0" Cursor="Hand">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="#0066FF" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <materialDesign:PackIcon Kind="ContentSaveOutline" Width="18" Height="18" Foreground="White" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                                <TextBlock Text="PAROLNI SAQLASH" Foreground="White" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+
+                            <!-- In-page Notification Badge -->
+                            <Border x:Name="PasswordNotificationBadge" CornerRadius="6" Padding="10,6" Margin="12,0,0,0" Visibility="Collapsed" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon x:Name="PasswordNotificationIcon" Kind="CheckCircleOutline" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="PasswordNotificationText" FontWeight="SemiBold" FontSize="12.5" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 
-                <!-- DNS Settings -->
-                <Border Background="White" CornerRadius="14" Padding="20" Margin="0,0,0,16" BorderBrush="#EBF2FC" BorderThickness="1">
+                <!-- Card 2: DNS Settings matching Image 3 -->
+                <Border Background="White" CornerRadius="14" Padding="24,20" Margin="0,0,0,16" BorderBrush="#EBF2FC" BorderThickness="1">
                     <Border.Effect>
                         <DropShadowEffect Color="#64748B" BlurRadius="16" Direction="270" ShadowDepth="3" Opacity="0.05" />
                     </Border.Effect>
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                            <materialDesign:PackIcon Kind="Dns" Width="20" Height="20" Foreground="#0066FF" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <!-- Header with Circular Badge -->
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
+                            <Border Background="#EFF6FF" Width="44" Height="44" CornerRadius="22" VerticalAlignment="Center" Margin="0,0,14,0">
+                                <materialDesign:PackIcon Kind="ServerNetwork" Width="22" Height="22" Foreground="#0066FF" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
                             <TextBlock Text="Tarmoq sozlamalari (DNS)" FontSize="18" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
                         </StackPanel>
-                        <TextBox x:Name="DnsTextBox" materialDesign:HintAssist.Hint="DNS Server (Masalan: 8.8.8.8)" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,16" />
-                        <Button Content="DNS SAQLASH" Click="SaveDnsButton_Click" HorizontalAlignment="Left" 
-                                Height="40" Padding="20,0" Background="#0066FF" BorderBrush="#0066FF" Foreground="White" FontWeight="Bold" />
+
+                        <!-- DNS Input Field -->
+                        <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1.5" CornerRadius="8" Height="44" Margin="0,0,0,16">
+                            <Grid Margin="12,0,12,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <materialDesign:PackIcon Kind="Dns" Width="20" Height="20" Foreground="#94A3B8" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <Grid Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock x:Name="DnsPlaceholder" Text="DNS Server (Masalan: 8.8.8.8)" Foreground="#94A3B8" FontSize="14" VerticalAlignment="Center" IsHitTestVisible="False" />
+                                    <TextBox x:Name="DnsTextBox" Background="Transparent" BorderThickness="0" FontSize="14" Foreground="#0F172A" VerticalContentAlignment="Center"
+                                             TextChanged="DnsTextBox_TextChanged"/>
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <!-- Action Row -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Click="SaveDnsButton_Click" Height="42" Padding="20,0" Cursor="Hand">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="#0066FF" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <materialDesign:PackIcon Kind="ContentSaveOutline" Width="18" Height="18" Foreground="White" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                                <TextBlock Text="DNS SAQLASH" Foreground="White" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+
+                            <!-- In-page Notification Badge -->
+                            <Border x:Name="DnsNotificationBadge" CornerRadius="6" Padding="10,6" Margin="12,0,0,0" Visibility="Collapsed" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon x:Name="DnsNotificationIcon" Kind="CheckCircleOutline" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="DnsNotificationText" FontWeight="SemiBold" FontSize="12.5" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 
-                <!-- Service Management -->
-                <Border Background="White" CornerRadius="14" Padding="20" Margin="0,0,0,16" BorderBrush="#EBF2FC" BorderThickness="1">
+                <!-- Card 3: Service Management matching Image 3 -->
+                <Border Background="White" CornerRadius="14" Padding="24,20" Margin="0,0,0,16" BorderBrush="#EBF2FC" BorderThickness="1">
                     <Border.Effect>
                         <DropShadowEffect Color="#64748B" BlurRadius="16" Direction="270" ShadowDepth="3" Opacity="0.05" />
                     </Border.Effect>
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                            <materialDesign:PackIcon Kind="ShieldSyncOutline" Width="20" Height="20" Foreground="#0066FF" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <!-- Header with Circular Badge -->
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                            <Border Background="#EFF6FF" Width="44" Height="44" CornerRadius="22" VerticalAlignment="Center" Margin="0,0,14,0">
+                                <materialDesign:PackIcon Kind="ShieldSyncOutline" Width="22" Height="22" Foreground="#0066FF" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
                             <TextBlock Text="Xizmatni boshqarish" FontSize="18" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                            <TextBlock Text="Holat: " Foreground="#64748B" VerticalAlignment="Center" FontSize="14" />
-                            <TextBlock x:Name="ServiceStatusLabel" Text="Tekshirilmoqda..." FontWeight="Bold" FontSize="14" Margin="4,0,0,0" VerticalAlignment="Center" />
+
+                        <!-- Status Indicator Row -->
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16" VerticalAlignment="Center">
+                            <TextBlock Text="Holat: " Foreground="#64748B" VerticalAlignment="Center" FontSize="14" FontWeight="Medium" />
+                            <Border x:Name="ServiceStatusBadge" Background="#F0FDF4" BorderBrush="#BBF7D0" BorderThickness="1" CornerRadius="12" Padding="10,4" Margin="6,0,0,0" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Ellipse x:Name="ServiceStatusDot" Width="9" Height="9" Fill="#16A34A" Margin="0,0,6,0" VerticalAlignment="Center" />
+                                    <TextBlock x:Name="ServiceStatusLabel" Text="Ishlamoqda (Faol)" FontWeight="Bold" Foreground="#16A34A" FontSize="13" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Button Content="ISHGA TUSHIRISH" Click="StartServiceButton_Click" Margin="0,0,12,0" 
-                                    Height="40" Padding="18,0" Background="#16A34A" BorderBrush="#16A34A" Foreground="White" FontWeight="Bold" />
-                            <Button Content="TO'XTATISH" Click="StopServiceButton_Click" Margin="0,0,12,0" 
-                                    Height="40" Padding="18,0" Background="#DC2626" BorderBrush="#DC2626" Foreground="White" FontWeight="Bold" />
-                            <Button Content="QAYTA ISHGA TUSHIRISH" Click="RestartServiceButton_Click" 
-                                    Height="40" Padding="18,0" Style="{StaticResource MaterialDesignOutlinedButton}" BorderBrush="#0066FF" Foreground="#0066FF" FontWeight="Bold" />
-                        </StackPanel>
+
+                        <!-- 3 Action Buttons -->
+                        <WrapPanel Orientation="Horizontal">
+                            <!-- Start Button -->
+                            <Button Click="StartServiceButton_Click" Height="42" Padding="18,0" Margin="0,0,12,8" Cursor="Hand">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="#16A34A" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <materialDesign:PackIcon Kind="Play" Width="18" Height="18" Foreground="White" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                                <TextBlock Text="ISHGA TUSHIRISH" Foreground="White" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+
+                            <!-- Stop Button -->
+                            <Button Click="StopServiceButton_Click" Height="42" Padding="18,0" Margin="0,0,12,8" Cursor="Hand">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="#DC2626" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <materialDesign:PackIcon Kind="Stop" Width="18" Height="18" Foreground="White" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                                <TextBlock Text="TO'XTATISH" Foreground="White" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+
+                            <!-- Restart Button -->
+                            <Button Click="RestartServiceButton_Click" Height="42" Padding="18,0" Margin="0,0,12,8" Cursor="Hand">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="White" BorderBrush="#0066FF" BorderThickness="1.5" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <materialDesign:PackIcon Kind="Restart" Width="18" Height="18" Foreground="#0066FF" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                                <TextBlock Text="QAYTA ISHGA TUSHIRISH" Foreground="#0066FF" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </WrapPanel>
                     </StackPanel>
                 </Border>
 
-                <!-- About Section -->
-                <Border Background="White" CornerRadius="14" Padding="20" Margin="0,0,0,16" BorderBrush="#EBF2FC" BorderThickness="1">
+                <!-- Card 4: About Section matching Image 3 -->
+                <Border Background="White" CornerRadius="14" Padding="24,20" Margin="0,0,0,24" BorderBrush="#EBF2FC" BorderThickness="1">
                     <Border.Effect>
                         <DropShadowEffect Color="#64748B" BlurRadius="16" Direction="270" ShadowDepth="3" Opacity="0.05" />
                     </Border.Effect>
@@ -89,16 +267,16 @@
 
                         <StackPanel Grid.Column="0">
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                <Image Source="/Assets/logo.png" Width="44" Height="44" Margin="0,0,14,0" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality" />
+                                <Image Source="/Assets/logo.png" Width="48" Height="48" Margin="0,0,14,0" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality" />
                                 <StackPanel VerticalAlignment="Center">
                                     <TextBlock Text="Nazoratchi v1.0.0" FontSize="18" FontWeight="Bold" Foreground="#0F172A" />
-                                    <TextBlock Text="Kompyuter va internetni nazorat qilish tizimi" FontSize="13" Foreground="#64748B" />
+                                    <TextBlock Text="Kompyuter va internetni nazorat qilish tizimi" FontSize="13" Foreground="#64748B" Margin="0,2,0,0" />
                                 </StackPanel>
                             </StackPanel>
-                            <TextBlock Text="Muallif: Tursunpo'lat Iskandarov" Margin="0,0,0,4" Foreground="#64748B" FontSize="13" />
-                            <TextBlock Text="CUBO kompaniyasi tomonidan ishlab chiqilgan" Margin="0,0,0,4" Foreground="#64748B" FontSize="13" />
+                            <TextBlock Text="Muallif: Tursunpo'lat Iskandarov" Margin="0,0,0,4" Foreground="#475569" FontSize="13" FontWeight="Medium" />
+                            <TextBlock Text="CUBO kompaniyasi tomonidan ishlab chiqilgan" Margin="0,0,0,4" Foreground="#475569" FontSize="13" />
                             <TextBlock Margin="0,0,0,4" FontSize="13">
-                                <Hyperlink NavigateUri="https://cubo.uz" RequestNavigate="Hyperlink_RequestNavigate" Foreground="#0066FF">
+                                <Hyperlink NavigateUri="https://cubo.uz" RequestNavigate="Hyperlink_RequestNavigate" Foreground="#0066FF" FontWeight="SemiBold">
                                     https://cubo.uz
                                 </Hyperlink>
                             </TextBlock>

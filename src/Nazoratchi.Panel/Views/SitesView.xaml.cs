@@ -104,7 +104,15 @@ public partial class SitesView : UserControl
         _blacklistRules = newRules;
         UpdateBlacklistGrid();
 
-        MessageBox.Show($"Qora ro'yxat saqlandi ({newRules.Count} ta sayt/qoida).", "Muvaffaqiyatli", MessageBoxButton.OK, MessageBoxImage.Information);
+        BlacklistNotificationText.Text = $"Qora ro'yxat saqlandi ({newRules.Count} ta sayt/qoida)";
+        BlacklistNotificationBadge.Visibility = Visibility.Visible;
+        var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
+        timer.Tick += (s, args) =>
+        {
+            BlacklistNotificationBadge.Visibility = Visibility.Collapsed;
+            timer.Stop();
+        };
+        timer.Start();
     }
 
     private void SortBlacklistButton_Click(object sender, RoutedEventArgs e)
@@ -191,7 +199,15 @@ public partial class SitesView : UserControl
         _whitelistRules = newRules;
         UpdateWhitelistGrid();
 
-        MessageBox.Show($"Oq ro'yxat saqlandi ({newRules.Count} ta sayt/qoida).", "Muvaffaqiyatli", MessageBoxButton.OK, MessageBoxImage.Information);
+        WhitelistNotificationText.Text = $"Oq ro'yxat saqlandi ({newRules.Count} ta sayt/qoida)";
+        WhitelistNotificationBadge.Visibility = Visibility.Visible;
+        var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
+        timer.Tick += (s, args) =>
+        {
+            WhitelistNotificationBadge.Visibility = Visibility.Collapsed;
+            timer.Stop();
+        };
+        timer.Start();
     }
 
     private void SortWhitelistButton_Click(object sender, RoutedEventArgs e)
