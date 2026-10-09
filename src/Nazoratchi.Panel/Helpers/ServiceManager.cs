@@ -84,34 +84,41 @@ public static class ServiceManager
         try
         {
             var status = GetServiceStatus();
-            if (status == ServiceControllerStatus.Running)
+            await Task.Run(() =>
             {
-                await Task.Run(() =>
+                try
                 {
-                    try
+                    string args;
+                    if (status == ServiceControllerStatus.Running)
                     {
-                        var startInfo = new ProcessStartInfo
-                        {
-                            FileName = "cmd.exe",
-                            Arguments = $"/c net stop {Constants.ServiceName} && net start {Constants.ServiceName} && ipconfig /flushdns",
-                            UseShellExecute = true,
-                            Verb = "runas",
-                            WindowStyle = ProcessWindowStyle.Hidden,
-                            CreateNoWindow = true
-                        };
-                        using var proc = Process.Start(startInfo);
-                        proc?.WaitForExit(8000);
+                        // If running, stop and start (use '&' so net start runs even if net stop returns non-zero)
+                        args = $"/c net stop {Constants.ServiceName} & net start {Constants.ServiceName} & ipconfig /flushdns";
                     }
-                    catch
+                    else
                     {
-                        // User might cancel UAC or already running
+                        // If stopped or any other state, start service directly
+                        args = $"/c net start {Constants.ServiceName} & ipconfig /flushdns";
                     }
-                });
-            }
-            else
-            {
-                FlushDnsSilently();
-            }
+
+                    var startInfo = new ProcessStartInfo
+                    {
+                        FileName = "cmd.exe",
+                        Arguments = args,
+                        UseShellExecute = true,
+                        Verb = "runas",
+                        WindowStyle = ProcessWindowStyle.Hidden,
+                        CreateNoWindow = true
+                    };
+                    using var proc = Process.Start(startInfo);
+                    proc?.WaitForExit(12000);
+                }
+                catch
+                {
+                    // User might cancel UAC or already running
+                }
+            });
+
+            FlushDnsSilently();
         }
         catch
         {
