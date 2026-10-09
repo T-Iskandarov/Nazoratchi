@@ -42,6 +42,7 @@ public class ConfigWatcherWorker : BackgroundService
             _watcher.Renamed += OnRenamed;
 
             _watcher.EnableRaisingEvents = true;
+            SyncBrowserPolicies();
         }
         catch (Exception ex)
         {
@@ -86,12 +87,33 @@ public class ConfigWatcherWorker : BackgroundService
             else if (string.Equals(fileName, "sites.json", StringComparison.OrdinalIgnoreCase))
             {
                 _configManager.LoadSites();
+                SyncBrowserPolicies();
                 NetworkHelper.FlushDns();
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing configuration file change.");
+        }
+    }
+
+    private void SyncBrowserPolicies()
+    {
+        try
+        {
+            var siteList = _configManager.LoadSites();
+            var allRules = new List<string>();
+            if (siteList.WhitelistSites != null)
+                allRules.AddRange(siteList.WhitelistSites.Select(r => r.Domain));
+            if (siteList.BlacklistSites != null)
+                allRules.AddRange(siteList.BlacklistSites.Select(r => r.Domain));
+
+            BrowserPolicyHelper.ApplyUrlBlocklist(allRules);
+            _logger.LogInformation("Synced browser URLBlocklist policies.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error syncing browser policies.");
         }
     }
 
@@ -102,6 +124,14 @@ public class ConfigWatcherWorker : BackgroundService
             _watcher.EnableRaisingEvents = false;
             _watcher.Dispose();
         }
+
+        try
+        {
+            BrowserPolicyHelper.ClearUrlBlocklist();
+            _logger.LogInformation("Cleared browser URLBlocklist policies on service stop.");
+        }
+        catch { }
+
         return base.StopAsync(cancellationToken);
     }
 }

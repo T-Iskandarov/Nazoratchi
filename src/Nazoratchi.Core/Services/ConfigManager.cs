@@ -214,6 +214,19 @@ public class ConfigManager
         SaveToFile(Constants.SitesFile, sites);
         _cachedSites = sites;
         _sitesLastRead = DateTime.UtcNow;
+
+        try
+        {
+            var allRules = new List<string>();
+            if (sites.WhitelistSites != null)
+                allRules.AddRange(sites.WhitelistSites.Select(r => r.Domain));
+            if (sites.BlacklistSites != null)
+                allRules.AddRange(sites.BlacklistSites.Select(r => r.Domain));
+
+            BrowserPolicyHelper.ApplyUrlBlocklist(allRules);
+        }
+        catch { }
+
         SitesReloaded?.Invoke();
     }
 

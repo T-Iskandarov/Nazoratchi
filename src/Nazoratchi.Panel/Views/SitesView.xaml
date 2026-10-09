@@ -313,7 +313,8 @@
                                 </StackPanel>
                                 <TextBlock Text="• Bu rejim yoqilganda faqat shu yerga kiritilgan saytlarga ruxsat beriladi, qolgan barcha saytlar bloklanadi." FontSize="12.5" Foreground="#334155" Margin="0,0,0,3"/>
                                 <TextBlock Text="• Masalan: google.com kiritilsa, uning barcha subdomenlari (www.google.com) ham ochiladi." FontSize="12.5" Foreground="#334155" Margin="0,0,0,3"/>
-                                <TextBlock Text="• *.edu.uz kiritilsa, barcha .edu.uz bilan tugaydigan ta'lim saytlariga ruxsat beriladi." FontSize="12.5" Foreground="#334155"/>
+                                <TextBlock Text="• *.edu.uz kiritilsa, barcha .edu.uz bilan tugaydigan ta'lim saytlariga ruxsat beriladi." FontSize="12.5" Foreground="#334155" Margin="0,0,0,3"/>
+                                <TextBlock Text="• Sayt ichidagi aniq o'yin/sahifalarni taqiqlash uchun boshiga '!' qo'ying (Masalan: !scratch.mit.edu/explore*)" FontWeight="SemiBold" FontSize="12.5" Foreground="#0369A1"/>
                             </StackPanel>
                         </Border>
 

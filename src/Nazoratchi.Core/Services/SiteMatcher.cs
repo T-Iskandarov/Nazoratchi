@@ -24,6 +24,18 @@ public static class SiteMatcher
 
         var rule = rawRule.Trim();
 
+        // Preserve '!' URL-level block exception prefix (e.g. !scratch.mit.edu/explore*)
+        if (rule.StartsWith("!"))
+        {
+            var content = rule.Substring(1).Trim();
+            if (content.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+                content = content.Substring(7);
+            else if (content.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                content = content.Substring(8);
+
+            return "!" + content.Trim().ToLowerInvariant();
+        }
+
         // Preserve '+' exception or '~' keyword prefix
         string prefix = string.Empty;
         if (rule.StartsWith("+") || rule.StartsWith("~"))
@@ -95,7 +107,7 @@ public static class SiteMatcher
             foreach (var rule in rules)
             {
                 var r = rule.Domain.Trim().ToLowerInvariant();
-                if (r.StartsWith("+")) continue; // Skip exception rules here
+                if (r.StartsWith("+") || r.StartsWith("!")) continue; // Skip exceptions and URL-level rules
 
                 if (MatchesRule(domain, r))
                 {
@@ -114,6 +126,8 @@ public static class SiteMatcher
             foreach (var rule in rules)
             {
                 var r = rule.Domain.Trim().ToLowerInvariant();
+                if (r.StartsWith("!")) continue; // URL-level block rule, handled by browser policy
+
                 if (r.StartsWith("+") && r.Length > 1)
                 {
                     r = r.Substring(1).Trim();
@@ -142,6 +156,10 @@ public static class SiteMatcher
             return false;
 
         rule = rule.Trim().ToLowerInvariant().TrimEnd('.');
+
+        // URL-level block rule: never matches DNS domain
+        if (rule.StartsWith("!"))
+            return false;
 
         // 1. Keyword match (~keyword)
         if (rule.StartsWith("~") && rule.Length > 1)
