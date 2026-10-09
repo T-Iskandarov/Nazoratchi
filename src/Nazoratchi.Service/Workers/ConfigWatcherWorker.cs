@@ -102,20 +102,12 @@ public class ConfigWatcherWorker : BackgroundService
     {
         try
         {
-            var config = _configManager.LoadConfig();
-            var siteList = _configManager.LoadSites();
-            var allRules = new List<string>();
-            if (siteList.WhitelistSites != null)
-                allRules.AddRange(siteList.WhitelistSites.Select(r => r.Domain));
-            if (siteList.BlacklistSites != null)
-                allRules.AddRange(siteList.BlacklistSites.Select(r => r.Domain));
-
-            BrowserPolicyHelper.ApplyUrlBlocklist(allRules, config.BlockAiChatbots);
-            _logger.LogInformation("Synced browser URLBlocklist policies (BlockAiChatbots={BlockAi}).", config.BlockAiChatbots);
+            BrowserPolicyHelper.ClearUrlBlocklist();
+            _logger.LogInformation("Ensured browser URLBlocklist policies are cleared (Pure DNS mode).");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error syncing browser policies.");
+            _logger.LogError(ex, "Error clearing browser policies.");
         }
     }
 

@@ -170,14 +170,7 @@ public class ConfigManager
 
         try
         {
-            var sites = LoadSites();
-            var allRules = new List<string>();
-            if (sites.WhitelistSites != null)
-                allRules.AddRange(sites.WhitelistSites.Select(r => r.Domain));
-            if (sites.BlacklistSites != null)
-                allRules.AddRange(sites.BlacklistSites.Select(r => r.Domain));
-
-            BrowserPolicyHelper.ApplyUrlBlocklist(allRules, config.BlockAiChatbots);
+            BrowserPolicyHelper.ClearUrlBlocklist();
         }
         catch { }
 
@@ -231,14 +224,7 @@ public class ConfigManager
 
         try
         {
-            var config = LoadConfig();
-            var allRules = new List<string>();
-            if (sites.WhitelistSites != null)
-                allRules.AddRange(sites.WhitelistSites.Select(r => r.Domain));
-            if (sites.BlacklistSites != null)
-                allRules.AddRange(sites.BlacklistSites.Select(r => r.Domain));
-
-            BrowserPolicyHelper.ApplyUrlBlocklist(allRules, config.BlockAiChatbots);
+            BrowserPolicyHelper.ClearUrlBlocklist();
         }
         catch { }
 

@@ -25,20 +25,42 @@ public static class Constants
     /// </summary>
     public static readonly string[] AiChatbotDomains = new[]
     {
+        // ChatGPT / OpenAI
         "chatgpt.com",
         "openai.com",
+        "oaistatic.com",
+        "oaiusercontent.com",
+
+        // Gemini / Google Bard
         "gemini.google.com",
         "bard.google.com",
+
+        // Grok / xAI
         "grok.com",
         "x.ai",
+
+        // Qwen / Alibaba
         "qwen.ai",
         "qwenlm.ai",
         "tongyi.aliyun.com",
+
+        // Meta AI
         "meta.ai",
+
+        // Microsoft Copilot
         "copilot.microsoft.com",
+
+        // Claude / Anthropic
         "claude.ai",
         "anthropic.com",
+        "claudeusercontent.com",
+
+        // DeepSeek
         "deepseek.com",
-        "perplexity.ai"
+        "chat.deepseek.com",
+
+        // Perplexity
+        "perplexity.ai",
+        "pplx.ai"
     };
 }
