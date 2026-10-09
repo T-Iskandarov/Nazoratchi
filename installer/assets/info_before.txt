@@ -1,0 +1,26 @@
+=====================================================
+       NAZORATCHI - XAVFSIZLIK VA FILTRLASH TIZIMI
+=====================================================
+
+Ishlab chiquvchi:  CUBO IT Academy
+Rasmiy sayt:       https://cubo.uz
+Dastur muallifi:   Tursunpo'lat Iskandarov
+Versiya:           1.0.0
+Platforma:         Windows 10 / Windows 11 (x64)
+
+Ushbu dasturiy ta'minot o'quv markazlari, maktablar va 
+tashkilotlar kompyuterlarida o'quvchilar va foydalanuvchilarning 
+chalg'imasligi, nomaqbul saytlarga kirmasligi hamda 
+kompyuterga o'zboshimchalik bilan o'yinlar va dasturlar 
+o'rnatilishining oldini olish uchun ishlab chiqilgan.
+
+Asosiy xususiyatlar:
+ • DNS darajasida samarali saytlar filtrlash (LeechBlock NG)
+ • YouTube, AI botlar va begona resurslarni tezkor bloklash
+ • Yangi dastur va o'yinlar o'rnatilishini 3 bosqichli cheklash
+ • Microsoft Store orqali o'yin va ilovalar yuklashni to'xtatish
+ • Administrator paroli va 8 xonali Qayta Tiklash Kaliti himoyasi
+ • Windows Service fonida mustaqil va uzluksiz ishlash
+
+Mualliflik huquqi:
+Barcha huquqlar qat'iy himoyalangan © CUBO kompaniyasi.

@@ -19,3 +19,7 @@ _ReSharper*/
 ## OS generated
 .DS_Store
 Thumbs.db
+
+## Build & Distribution outputs
+publish/
+dist/
