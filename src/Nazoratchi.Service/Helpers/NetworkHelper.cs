@@ -15,6 +15,7 @@ public static class NetworkHelper
 
     /// <summary>
     /// Backs up original DNS servers per adapter and returns the active primary DNS servers.
+    /// Never backs up loopback/127.0.0.1 addresses.
     /// </summary>
     public static string[] BackupAndGetOriginalDns()
     {
@@ -40,15 +41,22 @@ public static class NetworkHelper
                             if (dns.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                             {
                                 var dnsStr = dns.ToString();
-                                adapterDns.Add(dnsStr);
-                                if (!primaryDnsList.Contains(dnsStr))
+                                // NEVER save 127.0.0.1 or loopback as original DNS!
+                                if (!IsLoopbackOrLocal(dnsStr))
                                 {
-                                    primaryDnsList.Add(dnsStr);
+                                    adapterDns.Add(dnsStr);
+                                    if (!primaryDnsList.Contains(dnsStr))
+                                    {
+                                        primaryDnsList.Add(dnsStr);
+                                    }
                                 }
                             }
                         }
 
-                        _adapterOriginalDns[ni.Name] = adapterDns;
+                        if (adapterDns.Count > 0)
+                        {
+                            _adapterOriginalDns[ni.Name] = adapterDns;
+                        }
                     }
                 }
             }
@@ -57,8 +65,23 @@ public static class NetworkHelper
                 // Fallback to empty
             }
 
+            if (primaryDnsList.Count == 0)
+            {
+                // Fallback upstream DNS if none was found or only 127.0.0.1 was present
+                primaryDnsList.Add("8.8.8.8");
+                primaryDnsList.Add("1.1.1.1");
+            }
+
             return primaryDnsList.ToArray();
         }
+    }
+
+    private static bool IsLoopbackOrLocal(string? ip)
+    {
+        if (string.IsNullOrWhiteSpace(ip)) return true;
+        return ip.StartsWith("127.", StringComparison.OrdinalIgnoreCase) ||
+               ip.Equals("::1", StringComparison.OrdinalIgnoreCase) ||
+               ip.Equals("0.0.0.0", StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -82,8 +105,9 @@ public static class NetworkHelper
                 {
                     var safeName = SanitizeAdapterName(ni.Name);
 
-                    // Set IPv4 DNS to local interceptor
+                    // Set IPv4 DNS to local interceptor via netsh and powershell
                     RunCommand("netsh", $"interface ip set dns name=\"{safeName}\" static {dnsIp}");
+                    RunCommand("powershell.exe", $"-NoProfile -Command \"Set-DnsClientServerAddress -InterfaceAlias '{safeName}' -ServerAddresses ('{dnsIp}')\"");
                 }
             }
 
@@ -129,26 +153,34 @@ public static class NetworkHelper
                     {
                         var safeName = SanitizeAdapterName(ni.Name);
 
-                        if (_adapterOriginalDns.TryGetValue(ni.Name, out var originalList) && originalList.Count > 0)
+                        if (_adapterOriginalDns.TryGetValue(ni.Name, out var originalList) &&
+                            originalList.Count > 0 &&
+                            !IsLoopbackOrLocal(originalList[0]))
                         {
                             RunCommand("netsh", $"interface ip set dns name=\"{safeName}\" static {originalList[0]}");
                             for (int i = 1; i < originalList.Count; i++)
                             {
-                                RunCommand("netsh", $"interface ip add dns name=\"{safeName}\" {originalList[i]} index={i + 1}");
+                                if (!IsLoopbackOrLocal(originalList[i]))
+                                {
+                                    RunCommand("netsh", $"interface ip add dns name=\"{safeName}\" {originalList[i]} index={i + 1}");
+                                }
                             }
                         }
-                        else if (fallbackDns != null && fallbackDns.Length > 0)
+                        else if (fallbackDns != null && fallbackDns.Length > 0 && !IsLoopbackOrLocal(fallbackDns[0]))
                         {
                             RunCommand("netsh", $"interface ip set dns name=\"{safeName}\" static {fallbackDns[0]}");
                             for (int i = 1; i < fallbackDns.Length; i++)
                             {
-                                RunCommand("netsh", $"interface ip add dns name=\"{safeName}\" {fallbackDns[i]} index={i + 1}");
+                                if (!IsLoopbackOrLocal(fallbackDns[i]))
+                                {
+                                    RunCommand("netsh", $"interface ip add dns name=\"{safeName}\" {fallbackDns[i]} index={i + 1}");
+                                }
                             }
                         }
                         else
                         {
-                            // Reset to DHCP
-                            RunCommand("netsh", $"interface ip set dns name=\"{safeName}\" dhcp");
+                            // Reset to DHCP (both PowerShell and netsh for maximum reliability across languages)
+                            ResetAdapterDnsToDhcp(safeName);
                         }
                     }
                 }
@@ -158,12 +190,22 @@ public static class NetworkHelper
             RestoreDnsOverHttps();
 
             // Clear Windows DNS cache
-            RunCommand("ipconfig", "/flushdns");
+            FlushDns();
         }
         catch
         {
             // Ignore
         }
+    }
+
+    public static void ResetAdapterDnsToDhcp(string adapterName)
+    {
+        try
+        {
+            RunCommand("netsh", $"interface ip set dns name=\"{adapterName}\" dhcp");
+            RunCommand("powershell.exe", $"-NoProfile -Command \"Set-DnsClientServerAddress -InterfaceAlias '{adapterName}' -ResetServerAddresses\"");
+        }
+        catch { }
     }
 
     private static string SanitizeAdapterName(string name)

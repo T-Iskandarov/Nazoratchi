@@ -32,7 +32,7 @@ public static class BrowserPolicyHelper
                 else if (pattern.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
                     pattern = pattern.Substring(8);
 
-                pattern = pattern.Trim();
+                pattern = pattern.Trim().TrimEnd('*').TrimEnd('/').Trim();
                 if (!string.IsNullOrWhiteSpace(pattern))
                 {
                     result.Add(pattern);

@@ -4,6 +4,7 @@ using System.IO;
 using System.ServiceProcess;
 using System.Threading.Tasks;
 using Nazoratchi.Core;
+using Nazoratchi.Core.Services;
 
 namespace Nazoratchi.Panel.Helpers;
 
@@ -63,6 +64,13 @@ public static class ServiceManager
     {
         await RunElevatedAsync("net.exe", $"stop {Constants.ServiceName}");
         await Task.Delay(1000);
+
+        // Reset all active network adapters' DNS to DHCP (handles Russian / any language adapter names)
+        await RunElevatedAsync("powershell.exe", "-NoProfile -Command \"Get-NetAdapter | Where-Object { $_.Status -eq 'Up' } | ForEach-Object { Set-DnsClientServerAddress -InterfaceAlias $_.Name -ResetServerAddresses }\"");
+
+        // Clear browser policy from registry
+        BrowserPolicyHelper.ClearUrlBlocklist();
+
         FlushDnsSilently();
     }
 
