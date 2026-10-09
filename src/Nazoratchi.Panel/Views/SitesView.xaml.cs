@@ -125,6 +125,7 @@ public partial class SitesView : UserControl
         }).ToList();
 
         var siteList = _configManager.LoadSites();
+        siteList.Sites.Clear();
         siteList.BlacklistSites = newRules;
         _configManager.SaveSites(siteList);
 
@@ -171,6 +172,7 @@ public partial class SitesView : UserControl
             if (!string.IsNullOrEmpty(domain))
             {
                 var siteList = _configManager.LoadSites();
+                siteList.Sites.Clear();
                 siteList.BlacklistSites.RemoveAll(r => r.Domain.Equals(domain, StringComparison.OrdinalIgnoreCase));
                 _configManager.SaveSites(siteList);
 
@@ -245,6 +247,7 @@ public partial class SitesView : UserControl
         }).ToList();
 
         var siteList = _configManager.LoadSites();
+        siteList.Sites.Clear();
         siteList.WhitelistSites = newRules;
         _configManager.SaveSites(siteList);
 
@@ -291,6 +294,7 @@ public partial class SitesView : UserControl
             if (!string.IsNullOrEmpty(domain))
             {
                 var siteList = _configManager.LoadSites();
+                siteList.Sites.Clear();
                 siteList.WhitelistSites.RemoveAll(r => r.Domain.Equals(domain, StringComparison.OrdinalIgnoreCase));
                 _configManager.SaveSites(siteList);
 

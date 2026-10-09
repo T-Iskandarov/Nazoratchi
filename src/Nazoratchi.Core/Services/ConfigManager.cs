@@ -184,9 +184,15 @@ public class ConfigManager
             }
 
             var siteList = LoadFromFile(Constants.SitesFile, new SiteList());
-            if (siteList.BlacklistSites.Count == 0 && siteList.Sites.Count > 0)
+            if (siteList.Sites != null && siteList.Sites.Count > 0)
             {
-                siteList.BlacklistSites = new List<SiteRule>(siteList.Sites);
+                siteList.BlacklistSites ??= new List<SiteRule>();
+                if (siteList.BlacklistSites.Count == 0)
+                {
+                    siteList.BlacklistSites = new List<SiteRule>(siteList.Sites);
+                }
+                siteList.Sites.Clear();
+                SaveToFile(Constants.SitesFile, siteList);
             }
 
             _cachedSites = siteList;
@@ -204,6 +210,7 @@ public class ConfigManager
     /// </summary>
     public void SaveSites(SiteList sites)
     {
+        sites.Sites?.Clear();
         SaveToFile(Constants.SitesFile, sites);
         _cachedSites = sites;
         _sitesLastRead = DateTime.UtcNow;

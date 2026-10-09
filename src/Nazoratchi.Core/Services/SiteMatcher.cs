@@ -74,7 +74,7 @@ public static class SiteMatcher
 
         if (mode == FilterMode.BlackList)
         {
-            var rules = siteList.BlacklistSites.Count > 0 ? siteList.BlacklistSites : siteList.Sites;
+            var rules = siteList.BlacklistSites ?? new List<SiteRule>();
             if (rules.Count == 0) return false;
 
             // 1. Check exceptions (+prefix): if matches an exception, it is allowed
@@ -107,7 +107,7 @@ public static class SiteMatcher
         }
         else // WhiteList
         {
-            var rules = siteList.WhitelistSites.Count > 0 ? siteList.WhitelistSites : siteList.Sites;
+            var rules = siteList.WhitelistSites ?? new List<SiteRule>();
             if (rules.Count == 0) return true; // Empty whitelist blocks everything
 
             // In WhiteList mode: if domain matches ANY allowed rule, allow it
