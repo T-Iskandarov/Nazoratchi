@@ -40,7 +40,7 @@ ArchitecturesAllowed=x64compatible
 
 ; Dizayn, brending va rasmlar
 WizardStyle=modern
-SetupIconFile=assets\app.ico
+SetupIconFile=assets\clean_test.ico
 WizardImageFile=assets\wizard_large.bmp
 WizardSmallImageFile=assets\wizard_small.bmp
 InfoBeforeFile=assets\info_before.txt
@@ -101,3 +101,4 @@ Filename: "{sys}\sc.exe"; Parameters: "delete NazoratchiService"; Flags: runhidd
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
+
