@@ -258,6 +258,11 @@ public static class SiteMatcher
             domain.Contains("perplexity") || 
             domain.Contains("anthropic") || 
             domain.Contains("claude.ai") || 
+            domain.Contains("youtube") || 
+            domain.Contains("googlevideo") || 
+            domain.Contains("ytimg") || 
+            domain == "youtu.be" || 
+            domain.EndsWith(".youtu.be") || 
             domain == "gemini.google.com" || 
             domain.EndsWith(".gemini.google.com") ||
             domain == "bard.google.com" || 

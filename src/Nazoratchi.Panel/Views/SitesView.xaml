@@ -31,21 +31,33 @@
                                      Checked="ActiveMode_Changed" />
                     </StackPanel>
 
-                    <!-- AI Chatbots Strict Block Section -->
-                    <Border Background="#FEF2F2" BorderBrush="#FECACA" BorderThickness="1" CornerRadius="10" Padding="14,10" Margin="0,14,0,0">
+                    <!-- AI and YouTube Protection Card (Modern UX/UI) -->
+                    <Border Background="#FFF5F5" BorderBrush="#FECDD3" BorderThickness="1" CornerRadius="12" Padding="16,12" Margin="0,16,0,0">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <materialDesign:PackIcon Kind="RobotOffOutline" Grid.Column="0" Width="24" Height="24" Foreground="#DC2626" VerticalAlignment="Center" Margin="0,0,12,0"/>
+
+                            <!-- Modern Icon Badge -->
+                            <Border Grid.Column="0" Width="42" Height="42" CornerRadius="10" Background="#FFE4E6" 
+                                    VerticalAlignment="Center" Margin="0,0,14,0">
+                                <materialDesign:PackIcon Kind="ShieldAlertOutline" Width="24" Height="24" 
+                                                         Foreground="#E11D48" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+
+                            <!-- Content with Checkbox -->
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                 <CheckBox x:Name="BlockAiCheckBox" 
-                                          Content="Sun'iy intellekt (AI) chatbotlarini qat'iy bloklash" 
-                                          FontWeight="Bold" FontSize="14" Foreground="#991B1B"
-                                          Checked="BlockAiCheckBox_Changed" Unchecked="BlockAiCheckBox_Changed" />
-                                <TextBlock Text="ChatGPT, Gemini, Claude, Grok, DeepSeek, Qwen, Meta AI, Copilot, Perplexity — har qanday ro'yxatdan qat'i nazar to'liq bloklanadi." 
-                                           FontSize="12" Foreground="#7F1D1D" Margin="28,2,0,0" TextWrapping="Wrap" />
+                                          Checked="BlockAiCheckBox_Changed" Unchecked="BlockAiCheckBox_Changed"
+                                          Cursor="Hand" Margin="0" Padding="8,0,0,0">
+                                    <CheckBox.Content>
+                                        <TextBlock Text="Sun'iy intellekt (AI) va YouTube videolarni qat'iy bloklash" 
+                                                   FontSize="14" FontWeight="Bold" Foreground="#881337" VerticalAlignment="Center"/>
+                                    </CheckBox.Content>
+                                </CheckBox>
+                                <TextBlock Text="ChatGPT, Gemini, Claude, Grok, DeepSeek hamda YouTube (barcha videolar) — oq yoki qora ro'yxatdan qat'i nazar 100% bloklanadi." 
+                                           FontSize="12" Foreground="#9F1239" Margin="30,3,0,0" TextWrapping="Wrap" Opacity="0.9" />
                             </StackPanel>
                         </Grid>
                     </Border>

@@ -61,6 +61,17 @@ public static class Constants
 
         // Perplexity
         "perplexity.ai",
-        "pplx.ai"
+        "pplx.ai",
+
+        // YouTube (Videos, Streams, and Media CDNs)
+        "youtube.com",
+        "youtu.be",
+        "googlevideo.com",
+        "ytimg.com",
+        "youtube-nocookie.com",
+        "youtube-ui.l.google.com",
+        "yt3.ggpht.com",
+        "yt4.ggpht.com",
+        "youtubei.googleapis.com"
     };
 }
