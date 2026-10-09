@@ -97,15 +97,7 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Vaqt" Binding="{Binding Timestamp}" Width="180" />
                             <DataGridTextColumn Header="Dastur nomi" Binding="{Binding Detail}" Width="*" />
-                            <DataGridTemplateColumn Header="Natija" Width="120">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Border Background="#FEE2E2" CornerRadius="6" Padding="10,3" HorizontalAlignment="Left" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Result}" Foreground="#DC2626" FontSize="12" FontWeight="SemiBold" />
-                                        </Border>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Natija" Width="120" CellTemplate="{StaticResource LogResultBadgeTemplate}" />
                         </DataGrid.Columns>
                     </DataGrid>
 

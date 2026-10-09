@@ -22,7 +22,6 @@ public partial class DashboardView : UserControl
         _configManager = new ConfigManager();
         _logService = new LogService(_configManager);
         Loaded += (s, e) => LoadData();
-        LoadData();
     }
 
     private void RefreshButton_Click(object sender, RoutedEventArgs e)

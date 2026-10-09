@@ -71,25 +71,32 @@ public partial class LogsView : UserControl
         var from = StartDatePicker.SelectedDate ?? DateTime.Today;
         var to = (EndDatePicker.SelectedDate ?? DateTime.Today).AddDays(1).AddSeconds(-1);
 
-        var logs = _logService.GetLogsByDate(from, to);
+        try
+        {
+            var logs = _logService.GetLogsByDate(from, to);
 
-        // Filter by type
-        var typeIndex = TypeComboBox.SelectedIndex;
-        if (typeIndex == 1) // Saytlar
-        {
-            logs = logs.Where(l => l.Type == LogEventType.SiteBlocked).ToList();
-        }
-        else if (typeIndex == 2) // Dasturlar
-        {
-            logs = logs.Where(l => l.Type == LogEventType.AppBlocked).ToList();
-        }
+            // Filter by type
+            var typeIndex = TypeComboBox.SelectedIndex;
+            if (typeIndex == 1) // Saytlar
+            {
+                logs = logs.Where(l => l.Type == LogEventType.SiteBlocked).ToList();
+            }
+            else if (typeIndex == 2) // Dasturlar
+            {
+                logs = logs.Where(l => l.Type == LogEventType.AppBlocked).ToList();
+            }
 
-        _logs.Clear();
-        foreach (var log in logs)
-        {
-            _logs.Add(ToModel(log));
+            _logs.Clear();
+            foreach (var log in logs.Take(1000))
+            {
+                _logs.Add(ToModel(log));
+            }
+            UpdateEmptyState();
         }
-        UpdateEmptyState();
+        catch
+        {
+            // Fail gracefully
+        }
     }
 
     private void ClearLogsButton_Click(object sender, RoutedEventArgs e)

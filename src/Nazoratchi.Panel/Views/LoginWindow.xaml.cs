@@ -150,26 +150,25 @@ public partial class LoginWindow : Window
                 return;
             }
 
-            // Save password hash
-            var hash = _passwordService.HashPassword(password);
-            var config = _configManager.LoadConfig();
-            config.PasswordHash = hash;
-            _configManager.SaveConfig(config);
-
-            // Generate recovery key
+            // Save password and recovery key hash
             var recoveryKey = _passwordService.GenerateRecoveryKey();
-            config = _configManager.LoadConfig();
-            config.RecoveryKeyHash = _passwordService.HashPassword(recoveryKey);
+            var config = _configManager.LoadConfig();
+            config.PasswordHash = _passwordService.HashPassword(password);
+            config.RecoveryKeyHash = _passwordService.HashRecoveryKey(recoveryKey);
             _configManager.SaveConfig(config);
 
             // Save recovery key to a file for admin
             var recoveryFile = Path.Combine(Constants.ConfigDir, "TIKLASH_KALITI.txt");
-            File.WriteAllText(recoveryFile, $"=== NAZORATCHI PAROL TIKLASH KALITI ===\r\n\r\n" +
-                $"Bu kalit parolni unutganingizda kerak bo'ladi.\r\n" +
-                $"Uni xavfsiz joyda saqlang va o'quvchilar ko'rmasin!\r\n\r\n" +
-                $"KALIT: {recoveryKey}\r\n\r\n" +
-                $"Yaratilgan sana: {DateTime.Now:yyyy-MM-dd HH:mm:ss}\r\n" +
-                $"========================================\r\n");
+            try
+            {
+                File.WriteAllText(recoveryFile, $"=== NAZORATCHI PAROL TIKLASH KALITI ===\r\n\r\n" +
+                    $"Bu kalit parolni unutganingizda kerak bo'ladi.\r\n" +
+                    $"Uni xavfsiz joyda saqlang va o'quvchilar ko'rmasin!\r\n\r\n" +
+                    $"KALIT: {recoveryKey}\r\n\r\n" +
+                    $"Yaratilgan sana: {DateTime.Now:yyyy-MM-dd HH:mm:ss}\r\n" +
+                    $"========================================\r\n");
+            }
+            catch { }
 
             MessageBox.Show(
                 $"Parol muvaffaqiyatli o'rnatildi!\n\n" +

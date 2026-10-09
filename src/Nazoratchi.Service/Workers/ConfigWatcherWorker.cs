@@ -1,43 +1,45 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Nazoratchi.Core;
+using Nazoratchi.Core.Services;
 using Nazoratchi.Service.Helpers;
-using System.IO;
 
 namespace Nazoratchi.Service.Workers;
 
 /// <summary>
 /// Worker service responsible for monitoring configuration changes and DNS consistency.
+/// Informs ConfigManager to reload cached state immediately when files change.
 /// </summary>
 public class ConfigWatcherWorker : BackgroundService
 {
     private readonly ILogger<ConfigWatcherWorker> _logger;
+    private readonly ConfigManager _configManager;
     private FileSystemWatcher? _watcher;
-    private readonly string _configDirectory;
 
-    public ConfigWatcherWorker(ILogger<ConfigWatcherWorker> logger)
+    public ConfigWatcherWorker(ILogger<ConfigWatcherWorker> logger, ConfigManager configManager)
     {
         _logger = logger;
-        _configDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Nazoratchi");
+        _configManager = configManager;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("ConfigWatcherWorker starting...");
-        
+
         try
         {
-            if (!Directory.Exists(_configDirectory))
+            if (!Directory.Exists(Constants.ConfigDir))
             {
-                Directory.CreateDirectory(_configDirectory);
+                Directory.CreateDirectory(Constants.ConfigDir);
             }
 
-            _watcher = new FileSystemWatcher(_configDirectory);
-            _watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+            _watcher = new FileSystemWatcher(Constants.ConfigDir);
+            _watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
             _watcher.Filter = "*.json";
-            
+
             _watcher.Changed += OnChanged;
             _watcher.Created += OnChanged;
-            
+
             _watcher.EnableRaisingEvents = true;
         }
         catch (Exception ex)
@@ -49,12 +51,12 @@ public class ConfigWatcherWorker : BackgroundService
         {
             try
             {
-                // Check if DNS is still 127.0.0.1
+                // Verify that system DNS still points to 127.0.0.1
                 var currentDns = NetworkHelper.GetCurrentDnsServers();
-                if (currentDns.Length == 0 || currentDns[0] != "127.0.0.1")
+                if (currentDns.Length == 0 || currentDns[0] != Constants.LocalDnsIp)
                 {
-                    _logger.LogWarning("System DNS was changed. Restoring to 127.0.0.1.");
-                    NetworkHelper.SetSystemDns("127.0.0.1");
+                    _logger.LogWarning("System DNS was altered. Restoring to {Dns}.", Constants.LocalDnsIp);
+                    NetworkHelper.SetSystemDns(Constants.LocalDnsIp);
                 }
             }
             catch (Exception ex)
@@ -68,7 +70,22 @@ public class ConfigWatcherWorker : BackgroundService
 
     private void OnChanged(object sender, FileSystemEventArgs e)
     {
-        _logger.LogInformation("Configuration file changed: {FullPath}", e.FullPath);
+        try
+        {
+            _logger.LogInformation("Configuration file changed on disk: {FileName}", e.Name);
+            if (string.Equals(e.Name, "config.json", StringComparison.OrdinalIgnoreCase))
+            {
+                _configManager.LoadConfig();
+            }
+            else if (string.Equals(e.Name, "sites.json", StringComparison.OrdinalIgnoreCase))
+            {
+                _configManager.LoadSites();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing configuration file change.");
+        }
     }
 
     public override Task StopAsync(CancellationToken cancellationToken)

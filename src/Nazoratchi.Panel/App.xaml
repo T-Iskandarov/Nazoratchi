@@ -215,6 +215,23 @@
                     </Trigger>
                 </Style.Triggers>
             </Style>
+
+            <!-- DYNAMIC LOG RESULT BADGE TEMPLATE -->
+            <DataTemplate x:Key="LogResultBadgeTemplate">
+                <Border x:Name="ResultBadge" Background="#FEE2E2" CornerRadius="6" Padding="10,3" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <TextBlock x:Name="ResultText" Text="{Binding Result}" Foreground="#DC2626" FontSize="12" FontWeight="SemiBold" />
+                </Border>
+                <DataTemplate.Triggers>
+                    <DataTrigger Binding="{Binding Result}" Value="Ruxsat berildi">
+                        <Setter TargetName="ResultBadge" Property="Background" Value="#DCFCE7" />
+                        <Setter TargetName="ResultText" Property="Foreground" Value="#16A34A" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Result}" Value="AllowedByAdmin">
+                        <Setter TargetName="ResultBadge" Property="Background" Value="#DCFCE7" />
+                        <Setter TargetName="ResultText" Property="Foreground" Value="#16A34A" />
+                    </DataTrigger>
+                </DataTemplate.Triggers>
+            </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

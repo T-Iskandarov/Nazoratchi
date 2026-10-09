@@ -291,6 +291,14 @@ public partial class SettingsView : UserControl
         ConfirmPasswordTextBox.Clear();
     }
 
+    private void DnsPreset_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button btn && btn.Tag is string ip)
+        {
+            DnsTextBox.Text = ip;
+        }
+    }
+
     private void SaveDnsButton_Click(object sender, RoutedEventArgs e)
     {
         var dns = DnsTextBox.Text.Trim();
@@ -300,32 +308,42 @@ public partial class SettingsView : UserControl
             return;
         }
 
+        if (!System.Net.IPAddress.TryParse(dns, out var ip) || 
+            ip.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
+        {
+            ShowDnsNotification("Yaroqsiz IPv4 manzil (Masalan: 8.8.8.8)", false);
+            return;
+        }
+
         var config = _configManager.LoadConfig();
         config.DnsUpstream = dns;
         _configManager.SaveConfig(config);
 
-        ShowDnsNotification("DNS sozlamalari saqlandi", true);
+        ShowDnsNotification("DNS sozlamalari muvaffaqiyatli saqlandi", true);
     }
 
-    private void StartServiceButton_Click(object sender, RoutedEventArgs e)
+    private async void StartServiceButton_Click(object sender, RoutedEventArgs e)
     {
         try
         {
+            SetServiceBusy(true);
+
             if (!IsServiceInstalled())
             {
                 var exePath = FindServiceExePath();
                 if (!File.Exists(exePath))
                 {
                     MessageBox.Show($"Xizmat fayli topilmadi:\n{exePath}", "Xato", MessageBoxButton.OK, MessageBoxImage.Error);
+                    SetServiceBusy(false);
                     return;
                 }
 
-                RunElevated("sc.exe", $"create {Constants.ServiceName} binPath= \"\\\"{exePath}\\\"\" start= auto DisplayName= \"Nazoratchi Xavfsizlik Xizmati\"");
-                Thread.Sleep(1500);
+                await RunElevatedAsync("sc.exe", $"create {Constants.ServiceName} binPath= \"\\\"{exePath}\\\"\" start= auto DisplayName= \"Nazoratchi Xavfsizlik Xizmati\"");
+                await Task.Delay(1500);
             }
 
-            RunElevated("net.exe", $"start {Constants.ServiceName}");
-            Thread.Sleep(1000);
+            await RunElevatedAsync("net.exe", $"start {Constants.ServiceName}");
+            await Task.Delay(1000);
 
             RefreshServiceStatus();
             MessageBox.Show("Xizmat muvaffaqiyatli ishga tushirildi! Saytlar va dasturlar nazorati faollashdi.", "Muvaffaqiyatli", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -334,14 +352,19 @@ public partial class SettingsView : UserControl
         {
             MessageBox.Show($"Xizmatni ishga tushirishda xato: {ex.Message}", "Xato", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+        finally
+        {
+            SetServiceBusy(false);
+        }
     }
 
-    private void StopServiceButton_Click(object sender, RoutedEventArgs e)
+    private async void StopServiceButton_Click(object sender, RoutedEventArgs e)
     {
         try
         {
-            RunElevated("net.exe", $"stop {Constants.ServiceName}");
-            Thread.Sleep(1000);
+            SetServiceBusy(true);
+            await RunElevatedAsync("net.exe", $"stop {Constants.ServiceName}");
+            await Task.Delay(1000);
 
             RefreshServiceStatus();
             MessageBox.Show("Xizmat to'xtatildi.", "Ma'lumot", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -350,16 +373,21 @@ public partial class SettingsView : UserControl
         {
             MessageBox.Show($"Xizmatni to'xtatishda xato: {ex.Message}", "Xato", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+        finally
+        {
+            SetServiceBusy(false);
+        }
     }
 
-    private void RestartServiceButton_Click(object sender, RoutedEventArgs e)
+    private async void RestartServiceButton_Click(object sender, RoutedEventArgs e)
     {
         try
         {
-            RunElevated("net.exe", $"stop {Constants.ServiceName}");
-            Thread.Sleep(1500);
-            RunElevated("net.exe", $"start {Constants.ServiceName}");
-            Thread.Sleep(1000);
+            SetServiceBusy(true);
+            await RunElevatedAsync("net.exe", $"stop {Constants.ServiceName}");
+            await Task.Delay(1500);
+            await RunElevatedAsync("net.exe", $"start {Constants.ServiceName}");
+            await Task.Delay(1000);
 
             RefreshServiceStatus();
             MessageBox.Show("Xizmat qayta ishga tushirildi.", "Ma'lumot", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -368,6 +396,18 @@ public partial class SettingsView : UserControl
         {
             MessageBox.Show($"Xizmatni qayta ishga tushirishda xato: {ex.Message}", "Xato", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+        finally
+        {
+            SetServiceBusy(false);
+        }
+    }
+
+    private void SetServiceBusy(bool isBusy)
+    {
+        StartServiceButton.IsEnabled = !isBusy;
+        StopServiceButton.IsEnabled = !isBusy;
+        RestartServiceButton.IsEnabled = !isBusy;
+        ServiceOperationProgress.Visibility = isBusy ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private static bool IsServiceInstalled()
@@ -390,27 +430,53 @@ public partial class SettingsView : UserControl
         var direct = Path.Combine(baseDir, "Nazoratchi.Service.exe");
         if (File.Exists(direct)) return direct;
 
-        var devPath = Path.GetFullPath(Path.Combine(baseDir, @"..\..\..\..\Nazoratchi.Service\bin\Debug\net8.0-windows\win-x64\Nazoratchi.Service.exe"));
-        if (File.Exists(devPath)) return devPath;
+        var candidates = new[]
+        {
+            Path.GetFullPath(Path.Combine(baseDir, @"..\..\..\..\Nazoratchi.Service\bin\Debug\net8.0-windows\win-x64\Nazoratchi.Service.exe")),
+            Path.GetFullPath(Path.Combine(baseDir, @"..\..\..\..\Nazoratchi.Service\bin\Release\net8.0-windows\win-x64\Nazoratchi.Service.exe")),
+            Path.GetFullPath(Path.Combine(baseDir, @"..\..\..\..\Nazoratchi.Service\bin\Debug\net8.0-windows\Nazoratchi.Service.exe")),
+            Path.GetFullPath(Path.Combine(baseDir, @"..\..\..\..\Nazoratchi.Service\bin\Release\net8.0-windows\Nazoratchi.Service.exe"))
+        };
 
-        var standardPath = @"C:\Users\CUBO\Desktop\Loyihalar\Nazoratchi\src\Nazoratchi.Service\bin\Debug\net8.0-windows\win-x64\Nazoratchi.Service.exe";
-        if (File.Exists(standardPath)) return standardPath;
+        foreach (var candidate in candidates)
+        {
+            if (File.Exists(candidate)) return candidate;
+        }
+
+        try
+        {
+            using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\" + Constants.ServiceName);
+            var imagePath = key?.GetValue("ImagePath")?.ToString();
+            if (!string.IsNullOrEmpty(imagePath))
+            {
+                imagePath = imagePath.Trim('"');
+                if (File.Exists(imagePath)) return imagePath;
+            }
+        }
+        catch { }
 
         return direct;
     }
 
-    private static void RunElevated(string fileName, string arguments)
+    private static async Task RunElevatedAsync(string fileName, string arguments)
     {
-        var startInfo = new ProcessStartInfo
+        await Task.Run(() =>
         {
-            FileName = fileName,
-            Arguments = arguments,
-            UseShellExecute = true,
-            Verb = "runas",
-            WindowStyle = ProcessWindowStyle.Hidden
-        };
-        using var process = Process.Start(startInfo);
-        process?.WaitForExit(10000);
+            try
+            {
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = fileName,
+                    Arguments = arguments,
+                    UseShellExecute = true,
+                    Verb = "runas",
+                    WindowStyle = ProcessWindowStyle.Hidden
+                };
+                using var process = Process.Start(startInfo);
+                process?.WaitForExit(10000);
+            }
+            catch { }
+        });
     }
 
     private void CuboLogo_MouseDown(object sender, MouseButtonEventArgs e)
@@ -424,7 +490,11 @@ public partial class SettingsView : UserControl
 
     private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
     {
-        Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
-        e.Handled = true;
+        try
+        {
+            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+            e.Handled = true;
+        }
+        catch { }
     }
 }

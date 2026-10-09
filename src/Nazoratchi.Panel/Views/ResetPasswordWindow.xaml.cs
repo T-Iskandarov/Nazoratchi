@@ -1,7 +1,9 @@
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using MaterialDesignThemes.Wpf;
+using Nazoratchi.Core;
 using Nazoratchi.Core.Services;
 
 namespace Nazoratchi.Panel.Views;
@@ -128,7 +130,7 @@ public partial class ResetPasswordWindow : Window
         // Verify recovery key
         var config = _configManager.LoadConfig();
         if (string.IsNullOrEmpty(config.RecoveryKeyHash) || 
-            !_passwordService.VerifyPassword(recoveryKey, config.RecoveryKeyHash))
+            !_passwordService.VerifyRecoveryKey(recoveryKey, config.RecoveryKeyHash))
         {
             ShowError("Tiklash kaliti noto'g'ri.");
             return;
@@ -152,9 +154,26 @@ public partial class ResetPasswordWindow : Window
             return;
         }
 
-        // Save new password
+        // Save new password and generate a fresh recovery key
+        var newRecoveryKey = _passwordService.GenerateRecoveryKey();
         config.PasswordHash = _passwordService.HashPassword(newPassword);
+        config.RecoveryKeyHash = _passwordService.HashRecoveryKey(newRecoveryKey);
         _configManager.SaveConfig(config);
+
+        try
+        {
+            var recoveryFile = Path.Combine(Nazoratchi.Core.Constants.ConfigDir, "TIKLASH_KALITI.txt");
+            File.WriteAllText(recoveryFile, $"=== NAZORATCHI PAROL TIKLASH KALITI ===\r\n\r\n" +
+                $"Bu kalit parolni unutganingizda kerak bo'ladi.\r\n" +
+                $"Uni xavfsiz joyda saqlang va o'quvchilar ko'rmasin!\r\n\r\n" +
+                $"KALIT: {newRecoveryKey}\r\n\r\n" +
+                $"Yangilangan sana: {DateTime.Now:yyyy-MM-dd HH:mm:ss}\r\n" +
+                $"========================================\r\n");
+        }
+        catch { }
+
+        MessageBox.Show($"Parol muvaffaqiyatli yangilandi!\n\nYangi tiklash kaliti:\n{newRecoveryKey}",
+            "Muvaffaqiyatli", MessageBoxButton.OK, MessageBoxImage.Information);
 
         DialogResult = true;
         Close();

@@ -5,17 +5,13 @@ using System.Text;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
-using Nazoratchi.Core;
 using Nazoratchi.Core.Services;
 
 namespace Nazoratchi.Service.Workers;
 
 /// <summary>
-/// Professional guardian worker for blocking application installations and uninstallations.
-/// Employs 3 layers of defense:
-/// 1. Fast Window Guardian (200ms UI title monitor)
-/// 2. System Registry Security Policies (DisableMSI, NoAddRemovePrograms)
-/// 3. WMI Real-time Process Creation Interceptor (WITHIN 1)
+/// Guard worker for preventing unauthorized application installation and uninstallation.
+/// Combines process inspection, registry policy lockdown, and safe window inspection.
 /// </summary>
 public class AppGuardWorker : BackgroundService
 {
@@ -49,19 +45,26 @@ public class AppGuardWorker : BackgroundService
     #endregion
 
     /// <summary>
+    /// Critical processes that must never be terminated under any circumstances.
+    /// </summary>
+    private static readonly HashSet<string> ProtectedProcesses = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "explorer", "taskmgr", "system", "svchost", "csrss", "winlogon", "services",
+        "lsass", "smss", "dwm", "devenv", "code", "rider", "chrome", "msedge", "firefox", "brave", "opera"
+    };
+
+    /// <summary>
     /// Keywords in window titles that indicate an installation or uninstallation wizard.
     /// </summary>
     private static readonly string[] BlockedWindowTitles =
     {
-        "o'chirish", "ochirish", "uninstall", "удаление", "деинсталляция",
-        "o'rnatish", "ornatish", "setup", "установка", "инсталлятор",
         "install wizard", "setup wizard", "installation wizard",
         "uninstallation wizard", "uninstaller", "приложения и возможности",
         "apps & features", "программы и компоненты", "programs and features"
     };
 
     /// <summary>
-    /// Process names that should be blocked immediately.
+    /// Process names that should be blocked immediately when app blocking is active.
     /// </summary>
     private static readonly string[] BlockedProcessNames =
     {
@@ -69,12 +72,11 @@ public class AppGuardWorker : BackgroundService
     };
 
     /// <summary>
-    /// Keywords in process executable names.
+    /// Keywords in standalone installer executable names.
     /// </summary>
     private static readonly string[] BlockedProcessKeywords =
     {
-        "setup", "install", "installer", "uninst", "uninstall", "uninstaller",
-        "unins000", "unins001", "remove", "remover"
+        "setup.exe", "installer.exe", "uninst.exe", "uninstall.exe", "unins000.exe", "unins001.exe"
     };
 
     /// <summary>
@@ -95,21 +97,17 @@ public class AppGuardWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("AppGuardWorker starting with multi-layered defense...");
+        _logger.LogInformation("AppGuardWorker active with multi-layered protection.");
 
-        // Start WMI Process Watcher (WITHIN 1 second polling)
         StartWmiWatcher();
 
-        // Run Fast Window Guardian Loop (every 200ms)
         var windowGuardianTask = RunWindowGuardianAsync(stoppingToken);
-
-        // Run Periodic Policy & Status Loop
         var policySyncTask = RunPolicySyncAsync(stoppingToken);
 
         await Task.WhenAll(windowGuardianTask, policySyncTask);
     }
 
-    #region Layer 1: Fast Window Guardian (200ms)
+    #region Layer 1: Window Guardian
     private async Task RunWindowGuardianAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
@@ -124,10 +122,10 @@ public class AppGuardWorker : BackgroundService
             }
             catch (Exception ex)
             {
-                _logger.LogTrace(ex, "Error in Window Guardian scan.");
+                _logger.LogTrace(ex, "Window Guardian scan trace.");
             }
 
-            await Task.Delay(200, stoppingToken);
+            await Task.Delay(500, stoppingToken);
         }
     }
 
@@ -150,7 +148,7 @@ public class AppGuardWorker : BackgroundService
             if (title.Contains("nazoratchi"))
                 return true;
 
-            // Check if window title matches any blocked keywords
+            // Check if window title matches installation wizard patterns
             if (BlockedWindowTitles.Any(kw => title.Contains(kw)))
             {
                 GetWindowThreadProcessId(hWnd, out uint processId);
@@ -161,19 +159,18 @@ public class AppGuardWorker : BackgroundService
                         var process = Process.GetProcessById((int)processId);
                         var procName = process.ProcessName.ToLowerInvariant();
 
-                        // Avoid killing critical Windows processes (explorer.exe etc.)
-                        if (procName != "explorer" && procName != "taskmgr")
+                        if (ProtectedProcesses.Contains(procName))
                         {
-                            process.Kill();
-                            _logger.LogInformation("Window Guardian killed process: {Process} (PID: {Pid}) - Window: {Title}", procName, processId, title);
-                            _logService.LogAppBlocked($"Oyna: \"{title}\" ({procName})");
+                            // If it's a browser or shell window, close just the window instead of killing the process
+                            SendMessage(hWnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+                            _logger.LogInformation("Window Guardian closed window: {Title} on {Process}", title, procName);
+                            _logService.LogAppBlocked($"Oyna yopildi: \"{title}\"");
                         }
                         else
                         {
-                            // If it's a shell window like Settings/Control Panel, close just the window
-                            SendMessage(hWnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
-                            _logger.LogInformation("Window Guardian closed window: {Title}", title);
-                            _logService.LogAppBlocked($"Oyna yopildi: \"{title}\"");
+                            process.Kill();
+                            _logger.LogInformation("Window Guardian killed installer process: {Process} (PID: {Pid}) - Window: {Title}", procName, processId, title);
+                            _logService.LogAppBlocked($"O'rnatuvchi oynasi: \"{title}\" ({procName})");
                         }
                     }
                     catch (ArgumentException)
@@ -182,7 +179,7 @@ public class AppGuardWorker : BackgroundService
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Failed to kill window owner for: {Title}", title);
+                        _logger.LogError(ex, "Failed to close window for: {Title}", title);
                     }
                 }
             }
@@ -233,7 +230,7 @@ public class AppGuardWorker : BackgroundService
             // 1. Disable Windows Installer (MSI) completely (2 = Always Disabled)
             Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Installer", "DisableMSI", 2, RegistryValueKind.DWord);
 
-            // 2. Disable Add/Remove Programs and Uninstall in Control Panel & Settings
+            // 2. Disable Add/Remove Programs in Control Panel & Settings
             Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Uninstall", "NoAddRemovePrograms", 1, RegistryValueKind.DWord);
             Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Uninstall", "NoRemovePage", 1, RegistryValueKind.DWord);
 
@@ -277,7 +274,7 @@ public class AppGuardWorker : BackgroundService
             _watcher = new ManagementEventWatcher(query);
             _watcher.EventArrived += OnProcessStarted;
             _watcher.Start();
-            _logger.LogInformation("WMI process creation watcher started (WITHIN 1).");
+            _logger.LogInformation("WMI process creation watcher active.");
         }
         catch (Exception ex)
         {
@@ -301,32 +298,28 @@ public class AppGuardWorker : BackgroundService
             if (processName == null || string.IsNullOrEmpty(processIdStr) || !int.TryParse(processIdStr, out int processId))
                 return;
 
-            // Never block Nazoratchi itself
-            if (processName.Contains("nazoratchi"))
+            // Never block Nazoratchi or critical system processes
+            if (processName.Contains("nazoratchi") || ProtectedProcesses.Contains(processName.Replace(".exe", "")))
                 return;
 
             bool shouldBlock = false;
             string reason = "";
 
-            // Check blocked process names (e.g. msiexec.exe)
             if (BlockedProcessNames.Any(p => processName == p))
             {
                 shouldBlock = true;
                 reason = $"Taqiqlangan tizim jarayoni: {processName}";
             }
-            // Check process name keywords
-            else if (BlockedProcessKeywords.Any(kw => processName.Contains(kw)))
+            else if (BlockedProcessKeywords.Any(kw => processName.EndsWith(kw, StringComparison.OrdinalIgnoreCase)))
             {
                 shouldBlock = true;
-                reason = $"O'rnatish/o'chirish dasturi: {processName}";
+                reason = $"O'rnatish dasturi: {processName}";
             }
-            // Check command line arguments
             else if (BlockedCommandLinePatterns.Any(pattern => commandLine.Contains(pattern)))
             {
                 shouldBlock = true;
-                reason = $"Taqiqlangan parametr bilan ishga tushirish: {processName}";
+                reason = $"Taqiqlangan o'rnatish parametri: {processName}";
             }
-            // Deep check file version info (FileDescription & OriginalFilename)
             else
             {
                 try
@@ -334,16 +327,16 @@ public class AppGuardWorker : BackgroundService
                     var proc = Process.GetProcessById(processId);
                     var desc = proc.MainModule?.FileVersionInfo?.FileDescription?.ToLowerInvariant() ?? "";
                     var orig = proc.MainModule?.FileVersionInfo?.OriginalFilename?.ToLowerInvariant() ?? "";
-                    if (desc.Contains("uninstall") || desc.Contains("setup") || desc.Contains("installer") ||
-                        orig.Contains("uninstall") || orig.Contains("unins") || orig.Contains("setup"))
+                    if ((desc.Contains("setup") || desc.Contains("installer") || desc.Contains("uninstall")) &&
+                        !desc.Contains("driver") && !desc.Contains("microsoft"))
                     {
                         shouldBlock = true;
-                        reason = $"Tavsifi bo'yicha aniqlandi: {desc} ({orig})";
+                        reason = $"Tavsifi bo'yicha o'rnatuvchi: {desc}";
                     }
                 }
                 catch
                 {
-                    // Ignore access check errors for system protected processes
+                    // Ignore access check errors
                 }
             }
 
@@ -358,7 +351,7 @@ public class AppGuardWorker : BackgroundService
                 }
                 catch (ArgumentException)
                 {
-                    // Process already exited
+                    // Already exited
                 }
                 catch (Exception ex)
                 {

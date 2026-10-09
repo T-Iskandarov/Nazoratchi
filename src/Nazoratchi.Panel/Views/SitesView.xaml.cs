@@ -20,7 +20,6 @@ public partial class SitesView : UserControl
         InitializeComponent();
         _configManager = new ConfigManager();
         Loaded += (s, e) => LoadData();
-        LoadData();
     }
 
     private void LoadData()
@@ -110,12 +109,15 @@ public partial class SitesView : UserControl
     {
         var lines = BlacklistTextBox.Text
             .Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries)
-            .Select(l => l.Trim().ToLowerInvariant())
+            .Select(l => SiteMatcher.NormalizeRule(l))
             .Where(l => !string.IsNullOrWhiteSpace(l))
-            .Distinct()
+            .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        var existingDict = _blacklistRules.ToDictionary(r => r.Domain.ToLowerInvariant(), r => r.AddedAt);
+        var existingDict = _blacklistRules
+            .GroupBy(r => r.Domain.ToLowerInvariant())
+            .ToDictionary(g => g.Key, g => g.First().AddedAt);
+
         var newRules = lines.Select(domain => new SiteRule
         {
             Domain = domain,
@@ -227,12 +229,15 @@ public partial class SitesView : UserControl
     {
         var lines = WhitelistTextBox.Text
             .Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries)
-            .Select(l => l.Trim().ToLowerInvariant())
+            .Select(l => SiteMatcher.NormalizeRule(l))
             .Where(l => !string.IsNullOrWhiteSpace(l))
-            .Distinct()
+            .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        var existingDict = _whitelistRules.ToDictionary(r => r.Domain.ToLowerInvariant(), r => r.AddedAt);
+        var existingDict = _whitelistRules
+            .GroupBy(r => r.Domain.ToLowerInvariant())
+            .ToDictionary(g => g.Key, g => g.First().AddedAt);
+
         var newRules = lines.Select(domain => new SiteRule
         {
             Domain = domain,

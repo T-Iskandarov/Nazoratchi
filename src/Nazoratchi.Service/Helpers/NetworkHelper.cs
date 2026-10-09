@@ -1,45 +1,74 @@
 using System.Diagnostics;
 using System.Net.NetworkInformation;
-using System.Collections.Generic;
-using System.Linq;
+using System.Text.RegularExpressions;
 using Microsoft.Win32;
 
 namespace Nazoratchi.Service.Helpers;
 
 /// <summary>
-/// Utilities for managing network configuration and preventing DNS bypassing.
+/// Utilities for managing network configuration, DNS enforcement, and safe per-adapter state restoration.
 /// </summary>
 public static class NetworkHelper
 {
-    public static string[] GetCurrentDnsServers()
+    private static readonly Dictionary<string, List<string>> _adapterOriginalDns = new();
+    private static readonly object _dnsStateLock = new();
+
+    /// <summary>
+    /// Backs up original DNS servers per adapter and returns the active primary DNS servers.
+    /// </summary>
+    public static string[] BackupAndGetOriginalDns()
     {
-        var dnsServers = new List<string>();
-        try
+        lock (_dnsStateLock)
         {
-            var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
-            foreach (var ni in networkInterfaces)
+            _adapterOriginalDns.Clear();
+            var primaryDnsList = new List<string>();
+
+            try
             {
-                if (ni.OperationalStatus == OperationalStatus.Up && 
-                    (ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet || ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211))
+                var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+                foreach (var ni in networkInterfaces)
                 {
-                    var ipProps = ni.GetIPProperties();
-                    foreach (var dns in ipProps.DnsAddresses)
+                    if (ni.OperationalStatus == OperationalStatus.Up &&
+                        (ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
+                         ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211))
                     {
-                        if (dns.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                        var ipProps = ni.GetIPProperties();
+                        var adapterDns = new List<string>();
+
+                        foreach (var dns in ipProps.DnsAddresses)
                         {
-                            dnsServers.Add(dns.ToString());
+                            if (dns.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                            {
+                                var dnsStr = dns.ToString();
+                                adapterDns.Add(dnsStr);
+                                if (!primaryDnsList.Contains(dnsStr))
+                                {
+                                    primaryDnsList.Add(dnsStr);
+                                }
+                            }
                         }
+
+                        _adapterOriginalDns[ni.Name] = adapterDns;
                     }
                 }
             }
+            catch
+            {
+                // Fallback to empty
+            }
+
+            return primaryDnsList.ToArray();
         }
-        catch
-        {
-            // Ignore
-        }
-        return dnsServers.Distinct().ToArray();
     }
 
+    /// <summary>
+    /// Backward-compatible alias for BackupAndGetOriginalDns.
+    /// </summary>
+    public static string[] GetCurrentDnsServers() => BackupAndGetOriginalDns();
+
+    /// <summary>
+    /// Sets local DNS interceptor on all active Ethernet and Wi-Fi adapters.
+    /// </summary>
     public static void SetSystemDns(string dnsIp)
     {
         try
@@ -47,13 +76,14 @@ public static class NetworkHelper
             var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
             foreach (var ni in networkInterfaces)
             {
-                if (ni.OperationalStatus == OperationalStatus.Up && 
-                    (ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet || ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211))
+                if (ni.OperationalStatus == OperationalStatus.Up &&
+                    (ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
+                     ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211))
                 {
+                    var safeName = SanitizeAdapterName(ni.Name);
+
                     // Set IPv4 DNS to local interceptor
-                    RunCommand("netsh", $"interface ip set dns name=\"{ni.Name}\" static {dnsIp}");
-                    // Set IPv6 DNS to loopback to avoid bypassing IPv4 filter
-                    RunCommand("netsh", $"interface ipv6 set dnsservers name=\"{ni.Name}\" static ::1");
+                    RunCommand("netsh", $"interface ip set dns name=\"{safeName}\" static {dnsIp}");
                 }
             }
 
@@ -69,31 +99,46 @@ public static class NetworkHelper
         }
     }
 
-    public static void RestoreOriginalDns(string[] originalDns)
+    /// <summary>
+    /// Restores each adapter to its exact original DNS configuration (DHCP or static servers).
+    /// </summary>
+    public static void RestoreOriginalDns(string[]? fallbackDns = null)
     {
         try
         {
-            var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
-            foreach (var ni in networkInterfaces)
+            lock (_dnsStateLock)
             {
-                if (ni.OperationalStatus == OperationalStatus.Up && 
-                    (ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet || ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211))
+                var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+                foreach (var ni in networkInterfaces)
                 {
-                    if (originalDns.Length > 0)
+                    if (ni.OperationalStatus == OperationalStatus.Up &&
+                        (ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
+                         ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211))
                     {
-                        RunCommand("netsh", $"interface ip set dns name=\"{ni.Name}\" static {originalDns[0]}");
-                        for (int i = 1; i < originalDns.Length; i++)
+                        var safeName = SanitizeAdapterName(ni.Name);
+
+                        if (_adapterOriginalDns.TryGetValue(ni.Name, out var originalList) && originalList.Count > 0)
                         {
-                            RunCommand("netsh", $"interface ip add dns name=\"{ni.Name}\" {originalDns[i]} index={i + 1}");
+                            RunCommand("netsh", $"interface ip set dns name=\"{safeName}\" static {originalList[0]}");
+                            for (int i = 1; i < originalList.Count; i++)
+                            {
+                                RunCommand("netsh", $"interface ip add dns name=\"{safeName}\" {originalList[i]} index={i + 1}");
+                            }
+                        }
+                        else if (fallbackDns != null && fallbackDns.Length > 0)
+                        {
+                            RunCommand("netsh", $"interface ip set dns name=\"{safeName}\" static {fallbackDns[0]}");
+                            for (int i = 1; i < fallbackDns.Length; i++)
+                            {
+                                RunCommand("netsh", $"interface ip add dns name=\"{safeName}\" {fallbackDns[i]} index={i + 1}");
+                            }
+                        }
+                        else
+                        {
+                            // Reset to DHCP
+                            RunCommand("netsh", $"interface ip set dns name=\"{safeName}\" dhcp");
                         }
                     }
-                    else
-                    {
-                        RunCommand("netsh", $"interface ip set dns name=\"{ni.Name}\" dhcp");
-                    }
-
-                    // Reset IPv6 DNS to DHCP
-                    RunCommand("netsh", $"interface ipv6 set dnsservers name=\"{ni.Name}\" dhcp");
                 }
             }
 
@@ -107,6 +152,12 @@ public static class NetworkHelper
         {
             // Ignore
         }
+    }
+
+    private static string SanitizeAdapterName(string name)
+    {
+        // Remove quotes or unsafe characters to prevent command injection
+        return (name ?? string.Empty).Replace("\"", "").Trim();
     }
 
     private static void DisableDnsOverHttps()
@@ -151,7 +202,7 @@ public static class NetworkHelper
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.CreateNoWindow = true;
             process.Start();
-            process.WaitForExit(5000);
+            process.WaitForExit(4000);
         }
         catch
         {

@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 using Nazoratchi.Core.Models;
 
@@ -5,10 +6,62 @@ namespace Nazoratchi.Core.Services;
 
 /// <summary>
 /// Advanced domain matching service supporting wildcards, exceptions (+), and keywords (~).
-/// Inspired by LeechBlock NG matching rules.
+/// Includes URL sanitization, regex caching, and ReDoS protection.
 /// </summary>
 public static class SiteMatcher
 {
+    private static readonly ConcurrentDictionary<string, Regex> _regexCache = new();
+    private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(100);
+
+    /// <summary>
+    /// Normalizes raw domain or URL inputs (e.g. "https://example.com/path" -> "example.com").
+    /// Preserves rule prefixes like '+' (exception) and '~' (keyword).
+    /// </summary>
+    public static string NormalizeRule(string rawRule)
+    {
+        if (string.IsNullOrWhiteSpace(rawRule))
+            return string.Empty;
+
+        var rule = rawRule.Trim();
+
+        // Preserve '+' exception or '~' keyword prefix
+        string prefix = string.Empty;
+        if (rule.StartsWith("+") || rule.StartsWith("~"))
+        {
+            prefix = rule.Substring(0, 1);
+            rule = rule.Substring(1).Trim();
+        }
+
+        // If user entered a full URL, extract hostname
+        if (rule.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            rule.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            if (Uri.TryCreate(rule, UriKind.Absolute, out var uri))
+            {
+                rule = uri.Host;
+            }
+        }
+
+        // Remove path or query string if pasted (e.g. "facebook.com/messages")
+        var slashIndex = rule.IndexOf('/');
+        if (slashIndex >= 0)
+        {
+            rule = rule.Substring(0, slashIndex);
+        }
+
+        // Remove port (e.g. "example.com:443")
+        var colonIndex = rule.IndexOf(':');
+        if (colonIndex >= 0)
+        {
+            rule = rule.Substring(0, colonIndex);
+        }
+
+        // Strip leading dots and spaces
+        rule = rule.Trim().TrimStart('.').TrimEnd('.');
+
+        return prefix + rule.ToLowerInvariant();
+    }
+
     /// <summary>
     /// Checks whether a domain is blocked under the specified filter mode and site rules.
     /// </summary>
@@ -61,6 +114,11 @@ public static class SiteMatcher
             foreach (var rule in rules)
             {
                 var r = rule.Domain.Trim().ToLowerInvariant();
+                if (r.StartsWith("+") && r.Length > 1)
+                {
+                    r = r.Substring(1).Trim();
+                }
+
                 if (MatchesRule(domain, r))
                 {
                     return false; // Allowed!
@@ -97,17 +155,25 @@ public static class SiteMatcher
         {
             try
             {
-                var pattern = "^" + Regex.Escape(rule).Replace(@"\*", ".*") + "$";
-                return Regex.IsMatch(domain, pattern, RegexOptions.IgnoreCase);
+                var regex = _regexCache.GetOrAdd(rule, r =>
+                {
+                    // Escape regex special chars and replace consecutive wildcards with '.*'
+                    var escaped = Regex.Escape(r);
+                    var pattern = "^" + Regex.Replace(escaped, @"(\\?\*)+", ".*") + "$";
+                    return new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled, RegexTimeout);
+                });
+
+                return regex.IsMatch(domain);
             }
             catch
             {
-                // Fallback to simple contains if invalid regex
+                // Fallback to simple contains on error or regex timeout
                 return domain.Contains(rule.Replace("*", ""), StringComparison.OrdinalIgnoreCase);
             }
         }
 
         // 3. Exact domain or subdomain match (e.g. 'google.com' matches 'google.com' and 'sub.google.com')
+        rule = rule.TrimStart('.');
         return domain == rule || domain.EndsWith("." + rule, StringComparison.OrdinalIgnoreCase);
     }
 }

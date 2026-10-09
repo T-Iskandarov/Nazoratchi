@@ -1,10 +1,10 @@
 using System.Text;
-using System.Collections.Generic;
 
 namespace Nazoratchi.Service.Helpers;
 
 /// <summary>
-/// Utilities for parsing and building DNS packets.
+/// Robust utilities for parsing and building RFC 1035 compliant DNS packets.
+/// Protects against buffer overruns, truncated queries, and supports both A and AAAA types.
 /// </summary>
 public static class DnsPacketHelper
 {
@@ -12,7 +12,7 @@ public static class DnsPacketHelper
     {
         try
         {
-            if (packet.Length < 12) return string.Empty;
+            if (packet == null || packet.Length < 12) return string.Empty;
 
             var sb = new StringBuilder();
             int pos = 12; // Skip 12-byte header
@@ -22,9 +22,19 @@ public static class DnsPacketHelper
                 int len = packet[pos];
                 if (len == 0) break;
 
-                if (pos > 12) sb.Append('.');
+                // Handle DNS compression pointer (0xC0) or invalid length
+                if ((len & 0xC0) == 0xC0 || len > 63)
+                {
+                    break;
+                }
+
                 pos++;
-                
+                if (pos + len > packet.Length)
+                {
+                    return string.Empty; // Truncated label
+                }
+
+                if (sb.Length > 0) sb.Append('.');
                 sb.Append(Encoding.ASCII.GetString(packet, pos, len));
                 pos += len;
             }
@@ -37,9 +47,13 @@ public static class DnsPacketHelper
         }
     }
 
+    /// <summary>
+    /// Builds a synthetic blocked DNS response.
+    /// Returns 0.0.0.0 for Type A (IPv4) queries or NXDOMAIN (RCODE 3) for other query types.
+    /// </summary>
     public static byte[] BuildBlockedResponse(byte[] queryPacket)
     {
-        if (queryPacket.Length < 12) return queryPacket;
+        if (queryPacket == null || queryPacket.Length < 12) return queryPacket ?? Array.Empty<byte>();
 
         try
         {
@@ -47,78 +61,128 @@ public static class DnsPacketHelper
             int pos = 12;
             while (pos < queryPacket.Length && queryPacket[pos] != 0)
             {
-                pos += queryPacket[pos] + 1;
+                int labelLen = queryPacket[pos];
+                if ((labelLen & 0xC0) == 0xC0)
+                {
+                    pos += 2; // Pointer
+                    break;
+                }
+                pos += labelLen + 1;
             }
-            pos++; // Skip null byte
+
+            if (pos < queryPacket.Length && queryPacket[pos] == 0)
+            {
+                pos++; // Skip terminating null byte
+            }
+
+            // Must have at least 4 bytes for QTYPE (2) and QCLASS (2)
+            if (pos + 4 > queryPacket.Length)
+            {
+                return queryPacket;
+            }
+
+            ushort qtype = (ushort)((queryPacket[pos] << 8) | queryPacket[pos + 1]);
             pos += 4; // Skip QTYPE and QCLASS
 
-            // Build response
-            var response = new List<byte>();
-            
-            // ID
-            response.Add(queryPacket[0]);
-            response.Add(queryPacket[1]);
-            
-            // Flags: Standard response, no error
-            response.Add(0x81);
-            response.Add(0x80);
-            
-            // QDCOUNT (1)
-            response.Add(0x00);
-            response.Add(0x01);
-            
-            // ANCOUNT (1)
-            response.Add(0x00);
-            response.Add(0x01);
-            
-            // NSCOUNT (0)
-            response.Add(0x00);
-            response.Add(0x00);
-            
-            // ARCOUNT (0)
-            response.Add(0x00);
-            response.Add(0x00);
+            int questionLength = pos;
 
-            // Question Section (Copy from query)
-            for (int i = 12; i < pos; i++)
+            // If QTYPE is A (IPv4 = 1), return synthetic A record 0.0.0.0
+            if (qtype == 1)
             {
-                response.Add(queryPacket[i]);
+                var response = new List<byte>(questionLength + 16);
+
+                // ID
+                response.Add(queryPacket[0]);
+                response.Add(queryPacket[1]);
+
+                // Flags: Standard response, No error (0x8180)
+                response.Add(0x81);
+                response.Add(0x80);
+
+                // QDCOUNT (1)
+                response.Add(0x00);
+                response.Add(0x01);
+
+                // ANCOUNT (1)
+                response.Add(0x00);
+                response.Add(0x01);
+
+                // NSCOUNT (0), ARCOUNT (0)
+                response.Add(0x00);
+                response.Add(0x00);
+                response.Add(0x00);
+                response.Add(0x00);
+
+                // Question section (copy verbatim)
+                for (int i = 12; i < questionLength; i++)
+                {
+                    response.Add(queryPacket[i]);
+                }
+
+                // Answer section
+                // Name pointer to offset 12
+                response.Add(0xC0);
+                response.Add(0x0C);
+
+                // Type: A (1), Class: IN (1)
+                response.Add(0x00);
+                response.Add(0x01);
+                response.Add(0x00);
+                response.Add(0x01);
+
+                // TTL: 60 seconds
+                response.Add(0x00);
+                response.Add(0x00);
+                response.Add(0x00);
+                response.Add(0x3C);
+
+                // RDLENGTH: 4
+                response.Add(0x00);
+                response.Add(0x04);
+
+                // RDATA: 0.0.0.0
+                response.Add(0x00);
+                response.Add(0x00);
+                response.Add(0x00);
+                response.Add(0x00);
+
+                return response.ToArray();
             }
+            else
+            {
+                // For non-A queries (e.g. AAAA, HTTPS, TXT), return RFC-standard NXDOMAIN (RCODE 3)
+                var response = new List<byte>(questionLength);
 
-            // Answer Section
-            // Name: Pointer to question name (Offset 12)
-            response.Add(0xc0);
-            response.Add(0x0c);
-            
-            // Type: A (1)
-            response.Add(0x00);
-            response.Add(0x01);
-            
-            // Class: IN (1)
-            response.Add(0x00);
-            response.Add(0x01);
-            
-            // TTL: 60
-            response.Add(0x00);
-            response.Add(0x00);
-            response.Add(0x00);
-            response.Add(0x3c);
-            
-            // RDLENGTH: 4 (IPv4 address)
-            response.Add(0x00);
-            response.Add(0x04);
-            
-            // RDATA: 0.0.0.0
-            response.Add(0);
-            response.Add(0);
-            response.Add(0);
-            response.Add(0);
+                // ID
+                response.Add(queryPacket[0]);
+                response.Add(queryPacket[1]);
 
-            return response.ToArray();
+                // Flags: Response, Authoritative, Name Error / NXDOMAIN (0x8183)
+                response.Add(0x81);
+                response.Add(0x83);
+
+                // QDCOUNT (1), ANCOUNT (0), NSCOUNT (0), ARCOUNT (0)
+                response.Add(0x00);
+                response.Add(0x01);
+                response.Add(0x00);
+                response.Add(0x00);
+                response.Add(0x00);
+                response.Add(0x00);
+                response.Add(0x00);
+                response.Add(0x00);
+
+                // Question section
+                for (int i = 12; i < questionLength; i++)
+                {
+                    response.Add(queryPacket[i]);
+                }
+
+                return response.ToArray();
+            }
         }
         catch
         {
-            return queryPacket; // Fallback
+            return queryPacket;
         }
     }
 }
