@@ -17,17 +17,38 @@
                 <TextBlock Text="Saytlarni boshqarish" FontSize="26" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
             </StackPanel>
 
-            <!-- Active Mode Selector Card -->
+            <!-- Active Mode Selector & AI Protection Card -->
             <Border Grid.Row="1" Background="White" CornerRadius="14" Padding="20,16" Margin="0,0,0,16" 
                     BorderBrush="#EBF2FC" BorderThickness="1" Effect="{StaticResource CardElevationEffect}">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="Faol rejim:" FontWeight="Bold" FontSize="14" Foreground="#0F172A" VerticalAlignment="Center" Margin="0,0,24,0" />
-                    <RadioButton x:Name="BlacklistRadio" Content="Qora ro'yxat (Taqiqlanganlar)" 
-                                 GroupName="ActiveFilterMode" FontSize="14" Foreground="#1E293B" Margin="0,0,24,0" 
-                                 Checked="ActiveMode_Changed" />
-                    <RadioButton x:Name="WhitelistRadio" Content="Oq ro'yxat (Faqat ruxsat berilganlar)" 
-                                 GroupName="ActiveFilterMode" FontSize="14" Foreground="#1E293B" 
-                                 Checked="ActiveMode_Changed" />
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="Faol rejim:" FontWeight="Bold" FontSize="14" Foreground="#0F172A" VerticalAlignment="Center" Margin="0,0,24,0" />
+                        <RadioButton x:Name="BlacklistRadio" Content="Qora ro'yxat (Taqiqlanganlar)" 
+                                     GroupName="ActiveFilterMode" FontSize="14" Foreground="#1E293B" Margin="0,0,24,0" 
+                                     Checked="ActiveMode_Changed" />
+                        <RadioButton x:Name="WhitelistRadio" Content="Oq ro'yxat (Faqat ruxsat berilganlar)" 
+                                     GroupName="ActiveFilterMode" FontSize="14" Foreground="#1E293B" 
+                                     Checked="ActiveMode_Changed" />
+                    </StackPanel>
+
+                    <!-- AI Chatbots Strict Block Section -->
+                    <Border Background="#FEF2F2" BorderBrush="#FECACA" BorderThickness="1" CornerRadius="10" Padding="14,10" Margin="0,14,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <materialDesign:PackIcon Kind="RobotOffOutline" Grid.Column="0" Width="24" Height="24" Foreground="#DC2626" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <CheckBox x:Name="BlockAiCheckBox" 
+                                          Content="Sun'iy intellekt (AI) chatbotlarini qat'iy bloklash" 
+                                          FontWeight="Bold" FontSize="14" Foreground="#991B1B"
+                                          Checked="BlockAiCheckBox_Changed" Unchecked="BlockAiCheckBox_Changed" />
+                                <TextBlock Text="ChatGPT, Gemini, Claude, Grok, DeepSeek, Qwen, Meta AI, Copilot, Perplexity — har qanday ro'yxatdan qat'i nazar to'liq bloklanadi." 
+                                           FontSize="12" Foreground="#7F1D1D" Margin="28,2,0,0" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                 </StackPanel>
             </Border>
 

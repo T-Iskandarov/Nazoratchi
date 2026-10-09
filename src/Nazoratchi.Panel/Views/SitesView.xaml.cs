@@ -44,6 +44,9 @@ public partial class SitesView : UserControl
                 UpdateActivePills(false);
             }
 
+            // Load AI Chatbot blocking setting
+            BlockAiCheckBox.IsChecked = config.BlockAiChatbots;
+
             // Load sites
             var siteList = _configManager.LoadSites();
             _blacklistRules = siteList.BlacklistSites ?? new List<SiteRule>();
@@ -102,6 +105,16 @@ public partial class SitesView : UserControl
             UpdateActivePills(false);
         }
 
+        _configManager.SaveConfig(config);
+        _ = ServiceManager.RestartServiceSilentlyAsync();
+    }
+
+    private void BlockAiCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_isInitializing) return;
+
+        var config = _configManager.LoadConfig();
+        config.BlockAiChatbots = BlockAiCheckBox.IsChecked == true;
         _configManager.SaveConfig(config);
         _ = ServiceManager.RestartServiceSilentlyAsync();
     }

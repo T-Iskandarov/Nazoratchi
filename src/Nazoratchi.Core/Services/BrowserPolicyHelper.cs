@@ -46,9 +46,20 @@ public static class BrowserPolicyHelper
     /// Applies URLBlocklist to Google Chrome and Microsoft Edge via Windows Registry.
     /// If rules is empty, cleanly removes the policy subkeys so browsers have no restrictions.
     /// </summary>
-    public static void ApplyUrlBlocklist(IEnumerable<string> urlRules)
+    public static void ApplyUrlBlocklist(IEnumerable<string> urlRules, bool blockAiChatbots = false)
     {
         var rules = ExtractUrlRules(urlRules);
+        if (blockAiChatbots)
+        {
+            foreach (var ai in Constants.AiChatbotDomains)
+            {
+                if (!rules.Contains(ai, StringComparer.OrdinalIgnoreCase))
+                {
+                    rules.Add(ai);
+                }
+            }
+        }
+
         if (rules.Count == 0)
         {
             ClearUrlBlocklist();

@@ -11,4 +11,5 @@ public class AppConfig
     public bool IsAppBlockingEnabled { get; set; }
     public string DnsUpstream { get; set; } = Constants.DnsUpstreamDefault;
     public bool ServiceAutoStart { get; set; } = true;
+    public bool BlockAiChatbots { get; set; } = false;
 }

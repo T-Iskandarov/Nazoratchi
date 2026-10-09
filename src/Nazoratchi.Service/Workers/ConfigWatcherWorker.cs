@@ -82,6 +82,7 @@ public class ConfigWatcherWorker : BackgroundService
             if (string.Equals(fileName, "config.json", StringComparison.OrdinalIgnoreCase))
             {
                 _configManager.LoadConfig();
+                SyncBrowserPolicies();
                 NetworkHelper.FlushDns();
             }
             else if (string.Equals(fileName, "sites.json", StringComparison.OrdinalIgnoreCase))
@@ -101,6 +102,7 @@ public class ConfigWatcherWorker : BackgroundService
     {
         try
         {
+            var config = _configManager.LoadConfig();
             var siteList = _configManager.LoadSites();
             var allRules = new List<string>();
             if (siteList.WhitelistSites != null)
@@ -108,8 +110,8 @@ public class ConfigWatcherWorker : BackgroundService
             if (siteList.BlacklistSites != null)
                 allRules.AddRange(siteList.BlacklistSites.Select(r => r.Domain));
 
-            BrowserPolicyHelper.ApplyUrlBlocklist(allRules);
-            _logger.LogInformation("Synced browser URLBlocklist policies.");
+            BrowserPolicyHelper.ApplyUrlBlocklist(allRules, config.BlockAiChatbots);
+            _logger.LogInformation("Synced browser URLBlocklist policies (BlockAiChatbots={BlockAi}).", config.BlockAiChatbots);
         }
         catch (Exception ex)
         {

@@ -76,13 +76,20 @@ public static class SiteMatcher
 
     /// <summary>
     /// Checks whether a domain is blocked under the specified filter mode and site rules.
+    /// When blockAiChatbots is true, all AI chatbot services are strictly blocked regardless of whitelist/blacklist!
     /// </summary>
-    public static bool IsBlocked(string queryDomain, FilterMode mode, SiteList siteList)
+    public static bool IsBlocked(string queryDomain, FilterMode mode, SiteList siteList, bool blockAiChatbots = false)
     {
         if (string.IsNullOrWhiteSpace(queryDomain))
             return false;
 
         var domain = queryDomain.Trim().ToLowerInvariant().TrimEnd('.');
+
+        // 0. Strict Priority: Block AI chatbots if active, regardless of whitelist or blacklist
+        if (blockAiChatbots && IsAiChatbot(domain))
+        {
+            return true;
+        }
 
         if (mode == FilterMode.BlackList)
         {
@@ -227,6 +234,41 @@ public static class SiteMatcher
             var baseDomain = domain.Substring(4);
             if (baseDomain == rule || baseDomain.EndsWith("." + rule, StringComparison.OrdinalIgnoreCase))
                 return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Checks whether a domain belongs to a known AI chatbot service.
+    /// </summary>
+    public static bool IsAiChatbot(string domain)
+    {
+        if (string.IsNullOrWhiteSpace(domain)) return false;
+        domain = domain.Trim().ToLowerInvariant().TrimEnd('.');
+
+        foreach (var ai in Constants.AiChatbotDomains)
+        {
+            if (domain == ai || domain.EndsWith("." + ai, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        if (domain.Contains("chatgpt") || 
+            domain.Contains("deepseek") || 
+            domain.Contains("perplexity") || 
+            domain.Contains("anthropic") || 
+            domain.Contains("claude.ai") || 
+            domain == "gemini.google.com" || 
+            domain.EndsWith(".gemini.google.com") ||
+            domain == "bard.google.com" || 
+            domain.EndsWith(".bard.google.com") ||
+            domain == "copilot.microsoft.com" ||
+            domain == "meta.ai" ||
+            domain.EndsWith(".meta.ai") ||
+            domain == "grok.com" ||
+            domain.EndsWith(".grok.com"))
+        {
+            return true;
         }
 
         return false;

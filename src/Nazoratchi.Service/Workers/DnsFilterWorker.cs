@@ -190,7 +190,7 @@ public class DnsFilterWorker : BackgroundService
         {
             var config = _configManager.LoadConfig();
             var sites = _configManager.LoadSites();
-            return SiteMatcher.IsBlocked(domain, config.FilterMode, sites);
+            return SiteMatcher.IsBlocked(domain, config.FilterMode, sites, config.BlockAiChatbots);
         }
         catch (Exception ex)
         {
