@@ -170,7 +170,7 @@
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                                     <materialDesign:PackIcon Kind="LightbulbOutline" Width="18" Height="18" Foreground="#0284C7" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                    <TextBlock Text="Qoidalar va Maslahatlar (LeechBlock uslubida):" FontWeight="Bold" FontSize="13" Foreground="#0369A1" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Qoidalar va Maslahatlar:" FontWeight="Bold" FontSize="13" Foreground="#0369A1" VerticalAlignment="Center"/>
                                 </StackPanel>
                                 <TextBlock Text="• &quot;*&quot; yoki &quot;**&quot; — ixtiyoriy subdomen yoki qism (masalan: *.youtube.com, *game*, *bet)" FontSize="12.5" Foreground="#334155" Margin="0,0,0,3"/>
                                 <TextBlock Text="• &quot;+&quot; — istisno qoida (masalan: +mail.google.com ga ruxsat beriladi, boshqa google xizmatlari bloklanadi)" FontSize="12.5" Foreground="#334155" Margin="0,0,0,3"/>

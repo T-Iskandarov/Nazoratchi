@@ -5,7 +5,7 @@
         Title="Nazoratchi - Kirish" Height="570" Width="420"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
-        Icon="/Assets/logo.png"
+        Icon="/Assets/app.ico"
         FontFamily="Segoe UI"
         TextElement.Foreground="#0F172A">
     <Grid>

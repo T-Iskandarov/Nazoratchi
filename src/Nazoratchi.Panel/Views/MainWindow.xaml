@@ -5,7 +5,7 @@
         Title="Nazoratchi — Boshqaruv paneli" MinHeight="620" MinWidth="960" Height="720" Width="1080"
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
-        Icon="/Assets/logo.png"
+        Icon="/Assets/app.ico"
         FontFamily="Segoe UI"
         Background="#F8FAFC"
         TextElement.Foreground="#0F172A">

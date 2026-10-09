@@ -2,7 +2,7 @@
        NAZORATCHI - XAVFSIZLIK VA FILTRLASH TIZIMI
 =====================================================
 
-Ishlab chiquvchi:  CUBO IT Academy
+Ishlab chiquvchi:  CUBO LLC
 Rasmiy sayt:       https://cubo.uz
 Dastur muallifi:   Tursunpo'lat Iskandarov
 Versiya:           1.0.0
@@ -15,7 +15,7 @@ kompyuterga o'zboshimchalik bilan o'yinlar va dasturlar
 o'rnatilishining oldini olish uchun ishlab chiqilgan.
 
 Asosiy xususiyatlar:
- • DNS darajasida samarali saytlar filtrlash (LeechBlock NG)
+ • DNS darajasida samarali saytlar filtrlash
  • YouTube, AI botlar va begona resurslarni tezkor bloklash
  • Yangi dastur va o'yinlar o'rnatilishini 3 bosqichli cheklash
  • Microsoft Store orqali o'yin va ilovalar yuklashni to'xtatish

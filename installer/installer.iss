@@ -7,7 +7,7 @@
 
 #define MyAppName "Nazoratchi"
 #define MyAppVersion "1.0.0"
-#define MyAppPublisher "CUBO IT Academy"
+#define MyAppPublisher "CUBO LLC"
 #define MyAppURL "https://cubo.uz"
 #define MyAppExeName "Nazoratchi.Panel.exe"
 #define MyServiceExeName "Nazoratchi.Service.exe"
@@ -35,8 +35,8 @@ SolidCompression=yes
 ; Administrator huquqi talab qilinadi
 PrivilegesRequired=admin
 PrivilegesRequiredOverridesAllowed=commandline
-ArchitecturesInstallIn64BitMode=x64
-ArchitecturesAllowed=x64
+ArchitecturesInstallIn64BitMode=x64compatible
+ArchitecturesAllowed=x64compatible
 
 ; Dizayn, brending va rasmlar
 WizardStyle=modern
@@ -55,7 +55,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Messages]
 WelcomeLabel1=Nazoratchi tizimiga xush kelibsiz!
-WelcomeLabel2=Ushbu usta kompyuteringizga Nazoratchi tizimini o'rnatadi.%n%nIshlab chiquvchi: CUBO IT Academy%nMuallif: Tursunpo'lat Iskandarov%nVeb-sayt: https://cubo.uz%n%nDavom etishdan oldin boshqa barcha dasturlarni yopish tavsiya etiladi.
+WelcomeLabel2=Ushbu usta kompyuteringizga Nazoratchi tizimini o'rnatadi.%n%nIshlab chiquvchi: CUBO LLC%nMuallif: Tursunpo'lat Iskandarov%nVeb-sayt: https://cubo.uz%n%nDavom etishdan oldin boshqa barcha dasturlarni yopish tavsiya etiladi.
 FinishedHeadingLabel=Nazoratchi muvaffaqiyatli o'rnatildi!
 FinishedLabel=Nazoratchi xavfsizlik va filtrlash tizimi kompyuteringizga o'rnatildi va xizmat avtomatik ishga tushirildi.
 ClickFinish=O'rnatishni yakunlash uchun "Finish" tugmasini bosing.
@@ -96,8 +96,8 @@ Filename: "{app}\{#MyAppExeName}"; Description: "Nazoratchi Boshqaruv Panelini i
 
 [UninstallRun]
 ; Tizimdan o'chirish paytida servisni to'xtatish va o'chirish
-Filename: "{sys}\sc.exe"; Parameters: "stop NazoratchiService"; Flags: runhidden waituntilterminated
-Filename: "{sys}\sc.exe"; Parameters: "delete NazoratchiService"; Flags: runhidden waituntilterminated
+Filename: "{sys}\sc.exe"; Parameters: "stop NazoratchiService"; Flags: runhidden waituntilterminated; RunOnceId: "StopServiceUninstall"
+Filename: "{sys}\sc.exe"; Parameters: "delete NazoratchiService"; Flags: runhidden waituntilterminated; RunOnceId: "DeleteServiceUninstall"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
