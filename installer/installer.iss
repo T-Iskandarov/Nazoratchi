@@ -1,7 +1,7 @@
 ; =========================================================================
 ; Nazoratchi - Mukammal Nazorat va Filtrlash Tizimi
 ; Inno Setup 6 Installer Skripti
-; Ishlab chiquvchi: CUBO IT Academy (https://cubo.uz)
+; Ishlab chiquvchi: CUBO LLC (https://cubo.uz)
 ; Muallif: Tursunpo'lat Iskandarov
 ; =========================================================================
 
@@ -27,7 +27,7 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
-OutputBaseFilename=Nazoratchi_Setup_v1.0
+OutputBaseFilename=Nazoratchi_Setup
 OutputDir=..\dist
 Compression=lzma2/ultra64
 SolidCompression=yes

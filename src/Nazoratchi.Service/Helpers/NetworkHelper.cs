@@ -104,10 +104,28 @@ public static class NetworkHelper
                      ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211))
                 {
                     var safeName = SanitizeAdapterName(ni.Name);
+                    int ifIndex = -1;
+                    try { ifIndex = ni.GetIPProperties().GetIPv4Properties().Index; } catch { }
 
-                    // Set IPv4 DNS to local interceptor via netsh and powershell
+                    // Set IPv4 DNS to local interceptor (127.0.0.1) via netsh and powershell
                     RunCommand("netsh", $"interface ip set dns name=\"{safeName}\" static {dnsIp}");
-                    RunCommand("powershell.exe", $"-NoProfile -Command \"Set-DnsClientServerAddress -InterfaceAlias '{safeName}' -ServerAddresses ('{dnsIp}')\"");
+                    if (ifIndex > 0)
+                    {
+                        RunCommand("netsh", $"interface ip set dns name={ifIndex} static {dnsIp}");
+                        RunCommand("powershell.exe", $"-NoProfile -Command \"Set-DnsClientServerAddress -InterfaceIndex {ifIndex} -ServerAddresses ('{dnsIp}')\"");
+                    }
+                    else
+                    {
+                        RunCommand("powershell.exe", $"-NoProfile -Command \"Set-DnsClientServerAddress -InterfaceAlias '{safeName}' -ServerAddresses ('{dnsIp}')\"");
+                    }
+
+                    // CRITICAL: Block IPv6 DNS bypass! Clear/disable IPv6 DNS so Windows cannot query router IPv6 DNS (e.g. fe80::1)
+                    RunCommand("netsh", $"interface ipv6 set dnsservers name=\"{safeName}\" source=static address=none");
+                    if (ifIndex > 0)
+                    {
+                        RunCommand("netsh", $"interface ipv6 set dnsservers name={ifIndex} source=static address=none");
+                        RunCommand("powershell.exe", $"-NoProfile -Command \"$adapter = Get-DnsClientServerAddress -InterfaceIndex {ifIndex} -AddressFamily IPv6 -ErrorAction SilentlyContinue; if ($adapter) {{ Set-DnsClientServerAddress -InputObject $adapter -ServerAddresses @() }}\"");
+                    }
                 }
             }
 
@@ -153,60 +171,94 @@ public static class NetworkHelper
                     {
                         var safeName = SanitizeAdapterName(ni.Name);
 
-                        if (_adapterOriginalDns.TryGetValue(ni.Name, out var originalList) &&
-                            originalList.Count > 0 &&
-                            !IsLoopbackOrLocal(originalList[0]))
+                    int ifIndex = -1;
+                    try { ifIndex = ni.GetIPProperties().GetIPv4Properties().Index; } catch { }
+
+                    if (_adapterOriginalDns.TryGetValue(ni.Name, out var originalList) &&
+                        originalList.Count > 0 &&
+                        !IsLoopbackOrLocal(originalList[0]))
+                    {
+                        RunCommand("netsh", $"interface ip set dns name=\"{safeName}\" static {originalList[0]}");
+                        if (ifIndex > 0)
                         {
-                            RunCommand("netsh", $"interface ip set dns name=\"{safeName}\" static {originalList[0]}");
-                            for (int i = 1; i < originalList.Count; i++)
+                            RunCommand("netsh", $"interface ip set dns name={ifIndex} static {originalList[0]}");
+                        }
+                        for (int i = 1; i < originalList.Count; i++)
+                        {
+                            if (!IsLoopbackOrLocal(originalList[i]))
                             {
-                                if (!IsLoopbackOrLocal(originalList[i]))
+                                RunCommand("netsh", $"interface ip add dns name=\"{safeName}\" {originalList[i]} index={i + 1}");
+                                if (ifIndex > 0)
                                 {
-                                    RunCommand("netsh", $"interface ip add dns name=\"{safeName}\" {originalList[i]} index={i + 1}");
+                                    RunCommand("netsh", $"interface ip add dns name={ifIndex} {originalList[i]} index={i + 1}");
                                 }
                             }
                         }
-                        else if (fallbackDns != null && fallbackDns.Length > 0 && !IsLoopbackOrLocal(fallbackDns[0]))
+                    }
+                    else if (fallbackDns != null && fallbackDns.Length > 0 && !IsLoopbackOrLocal(fallbackDns[0]))
+                    {
+                        RunCommand("netsh", $"interface ip set dns name=\"{safeName}\" static {fallbackDns[0]}");
+                        if (ifIndex > 0)
                         {
-                            RunCommand("netsh", $"interface ip set dns name=\"{safeName}\" static {fallbackDns[0]}");
-                            for (int i = 1; i < fallbackDns.Length; i++)
+                            RunCommand("netsh", $"interface ip set dns name={ifIndex} static {fallbackDns[0]}");
+                        }
+                        for (int i = 1; i < fallbackDns.Length; i++)
+                        {
+                            if (!IsLoopbackOrLocal(fallbackDns[i]))
                             {
-                                if (!IsLoopbackOrLocal(fallbackDns[i]))
+                                RunCommand("netsh", $"interface ip add dns name=\"{safeName}\" {fallbackDns[i]} index={i + 1}");
+                                if (ifIndex > 0)
                                 {
-                                    RunCommand("netsh", $"interface ip add dns name=\"{safeName}\" {fallbackDns[i]} index={i + 1}");
+                                    RunCommand("netsh", $"interface ip add dns name={ifIndex} {fallbackDns[i]} index={i + 1}");
                                 }
                             }
                         }
-                        else
-                        {
-                            // Reset to DHCP (both PowerShell and netsh for maximum reliability across languages)
-                            ResetAdapterDnsToDhcp(safeName);
-                        }
+                    }
+                    else
+                    {
+                        // Reset to DHCP
+                        ResetAdapterDnsToDhcp(safeName, ifIndex);
+                    }
+
+                    // Restore IPv6 DNS to DHCP
+                    RunCommand("netsh", $"interface ipv6 set dnsservers name=\"{safeName}\" source=dhcp");
+                    if (ifIndex > 0)
+                    {
+                        RunCommand("netsh", $"interface ipv6 set dnsservers name={ifIndex} source=dhcp");
+                        RunCommand("powershell.exe", $"-NoProfile -Command \"Set-DnsClientServerAddress -InterfaceIndex {ifIndex} -ResetServerAddresses\"");
                     }
                 }
             }
-
-            // Restore DNS-over-HTTPS settings
-            RestoreDnsOverHttps();
-
-            // Clear Windows DNS cache
-            FlushDns();
         }
-        catch
-        {
-            // Ignore
-        }
+
+        // Restore DNS-over-HTTPS settings
+        RestoreDnsOverHttps();
+
+        // Clear Windows DNS cache
+        FlushDns();
     }
-
-    public static void ResetAdapterDnsToDhcp(string adapterName)
+    catch
     {
-        try
-        {
-            RunCommand("netsh", $"interface ip set dns name=\"{adapterName}\" dhcp");
-            RunCommand("powershell.exe", $"-NoProfile -Command \"Set-DnsClientServerAddress -InterfaceAlias '{adapterName}' -ResetServerAddresses\"");
-        }
-        catch { }
+        // Ignore
     }
+}
+
+public static void ResetAdapterDnsToDhcp(string adapterName, int ifIndex = -1)
+{
+    try
+    {
+        RunCommand("netsh", $"interface ip set dns name=\"{adapterName}\" dhcp");
+        RunCommand("netsh", $"interface ipv6 set dnsservers name=\"{adapterName}\" source=dhcp");
+        RunCommand("powershell.exe", $"-NoProfile -Command \"Set-DnsClientServerAddress -InterfaceAlias '{adapterName}' -ResetServerAddresses\"");
+        if (ifIndex > 0)
+        {
+            RunCommand("netsh", $"interface ip set dns name={ifIndex} dhcp");
+            RunCommand("netsh", $"interface ipv6 set dnsservers name={ifIndex} source=dhcp");
+            RunCommand("powershell.exe", $"-NoProfile -Command \"Set-DnsClientServerAddress -InterfaceIndex {ifIndex} -ResetServerAddresses\"");
+        }
+    }
+    catch { }
+}
 
     private static string SanitizeAdapterName(string name)
     {
