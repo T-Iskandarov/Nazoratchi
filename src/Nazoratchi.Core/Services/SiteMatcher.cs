@@ -153,6 +153,17 @@ public static class SiteMatcher
         // 2. Wildcard match (* or **)
         if (rule.Contains("*"))
         {
+            // If rule is of form *.domain.com, match both domain.com and subdomains
+            if (rule.StartsWith("*."))
+            {
+                var baseDomain = rule.Substring(2).TrimStart('.');
+                if (!string.IsNullOrEmpty(baseDomain) && 
+                    (domain == baseDomain || domain.EndsWith("." + baseDomain, StringComparison.OrdinalIgnoreCase)))
+                {
+                    return true;
+                }
+            }
+
             try
             {
                 var regex = _regexCache.GetOrAdd(rule, r =>
