@@ -71,7 +71,8 @@ public class AppGuardWorker : BackgroundService
     private static readonly string[] BlockedProcessNames =
     {
         "msiexec.exe",
-        "winstore.app.exe"
+        "winstore.app.exe",
+        "storedesktopextension.exe"
     };
 
     /// <summary>
@@ -121,6 +122,7 @@ public class AppGuardWorker : BackgroundService
                 if (config.IsAppBlockingEnabled)
                 {
                     ScanAndKillBlockedWindows();
+                    KillActiveBlockedProcesses();
                 }
             }
             catch (Exception ex)
@@ -130,6 +132,29 @@ public class AppGuardWorker : BackgroundService
 
             await Task.Delay(500, stoppingToken);
         }
+    }
+
+    private void KillActiveBlockedProcesses()
+    {
+        try
+        {
+            var targetNames = new[] { "winstore.app", "storedesktopextension" };
+            foreach (var target in targetNames)
+            {
+                var processes = Process.GetProcessesByName(target);
+                foreach (var proc in processes)
+                {
+                    try
+                    {
+                        proc.Kill();
+                        _logger.LogInformation("Killed Store process: {Process} (PID: {Pid})", proc.ProcessName, proc.Id);
+                        _logService.LogAppBlocked($"Microsoft Store yopildi ({proc.ProcessName})");
+                    }
+                    catch { }
+                }
+            }
+        }
+        catch { }
     }
 
     private void ScanAndKillBlockedWindows()
