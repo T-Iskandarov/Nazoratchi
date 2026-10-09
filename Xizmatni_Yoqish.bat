@@ -11,6 +11,17 @@ if %errorLevel% neq 0 (
 )
 
 set "SERVICE_EXE=%~dp0src\Nazoratchi.Service\bin\Debug\net8.0-windows\win-x64\Nazoratchi.Service.exe"
+if not exist "%SERVICE_EXE%" set "SERVICE_EXE=%~dp0src\Nazoratchi.Service\bin\Release\net8.0-windows\win-x64\Nazoratchi.Service.exe"
+if not exist "%SERVICE_EXE%" set "SERVICE_EXE=%~dp0src\Nazoratchi.Service\bin\Debug\net8.0-windows\Nazoratchi.Service.exe"
+if not exist "%SERVICE_EXE%" set "SERVICE_EXE=%~dp0src\Nazoratchi.Service\bin\Release\net8.0-windows\Nazoratchi.Service.exe"
+
+if not exist "%SERVICE_EXE%" (
+    echo.
+    echo [XATO] Xizmat dasturi topilmadi!
+    echo Iltimos, avval dasturni build qiling: dotnet build Nazoratchi.sln
+    pause
+    exit /b
+)
 
 echo [1/2] NazoratchiService xizmati ro'yxatdan o'tkazilmoqda...
 sc.exe stop NazoratchiService >nul 2>&1

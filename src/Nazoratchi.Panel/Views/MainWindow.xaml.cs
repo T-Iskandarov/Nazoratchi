@@ -29,11 +29,12 @@ public partial class MainWindow : Window
 
     private void NavListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (NavListBox.SelectedItem is ListBoxItem item)
+        if (NavListBox.SelectedItem is ListBoxItem item && item.Tag != null)
         {
             switch (item.Tag.ToString())
             {
                 case "Dashboard":
+                    _dashboardView.LoadData();
                     MainContent.Content = _dashboardView;
                     break;
                 case "Sites":
@@ -43,9 +44,11 @@ public partial class MainWindow : Window
                     MainContent.Content = _appsView;
                     break;
                 case "Logs":
+                    _logsView.LoadData();
                     MainContent.Content = _logsView;
                     break;
                 case "Settings":
+                    _settingsView.RefreshServiceStatus();
                     MainContent.Content = _settingsView;
                     break;
             }
