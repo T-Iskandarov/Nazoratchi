@@ -61,7 +61,8 @@ public class AppGuardWorker : BackgroundService
     {
         "install wizard", "setup wizard", "installation wizard",
         "uninstallation wizard", "uninstaller", "приложения и возможности",
-        "apps & features", "программы и компоненты", "programs and features"
+        "apps & features", "программы и компоненты", "programs and features",
+        "microsoft store", "магазин microsoft"
     };
 
     /// <summary>
@@ -69,7 +70,8 @@ public class AppGuardWorker : BackgroundService
     /// </summary>
     private static readonly string[] BlockedProcessNames =
     {
-        "msiexec.exe"
+        "msiexec.exe",
+        "winstore.app.exe"
     };
 
     /// <summary>
@@ -235,7 +237,11 @@ public class AppGuardWorker : BackgroundService
             Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Uninstall", "NoAddRemovePrograms", 1, RegistryValueKind.DWord);
             Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Uninstall", "NoRemovePage", 1, RegistryValueKind.DWord);
 
-            _logger.LogInformation("System security policies applied (DisableMSI, NoAddRemovePrograms).");
+            // 3. Disable Microsoft Store completely
+            Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\WindowsStore", "RemoveWindowsStore", 1, RegistryValueKind.DWord);
+            Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\WindowsStore", "DisableStoreApps", 1, RegistryValueKind.DWord);
+
+            _logger.LogInformation("System security policies applied (DisableMSI, NoAddRemovePrograms, RemoveWindowsStore).");
         }
         catch (Exception ex)
         {
@@ -255,6 +261,11 @@ public class AppGuardWorker : BackgroundService
             {
                 key?.DeleteValue("NoAddRemovePrograms", false);
                 key?.DeleteValue("NoRemovePage", false);
+            }
+            using (var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Policies\Microsoft\WindowsStore", true))
+            {
+                key?.DeleteValue("RemoveWindowsStore", false);
+                key?.DeleteValue("DisableStoreApps", false);
             }
 
             _logger.LogInformation("System security policies removed.");

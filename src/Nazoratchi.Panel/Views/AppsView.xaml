@@ -73,7 +73,7 @@
 
                 <!-- Subtitle Description -->
                 <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" 
-                           Text="Bu funksiya yoqilganda, o'quvchilar yangi dastur o'rnata olmaydi va mavjud dasturlarni o'chira olmaydi. Setup, install, uninstall, msi fayllar va Dasturlarni o'chirish oynasi bloklanadi." 
+                           Text="Bu funksiya yoqilganda, o'quvchilar yangi dastur o'rnata olmaydi va mavjud dasturlarni o'chira olmaydi. Setup, install, uninstall, msi fayllar, Microsoft Store do'koni va Dasturlarni o'chirish oynasi to'liq bloklanadi." 
                            TextWrapping="Wrap" Foreground="#64748B" FontSize="13" Margin="0,8,0,0" LineHeight="20" />
             </Grid>
         </Border>
