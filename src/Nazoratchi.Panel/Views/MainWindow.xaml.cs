@@ -48,7 +48,6 @@ public partial class MainWindow : Window
                     MainContent.Content = _logsView;
                     break;
                 case "Settings":
-                    _settingsView.RefreshServiceStatus();
                     MainContent.Content = _settingsView;
                     break;
             }

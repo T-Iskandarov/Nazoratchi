@@ -91,12 +91,24 @@ public static class NetworkHelper
             DisableDnsOverHttps();
 
             // Clear Windows DNS cache
-            RunCommand("ipconfig", "/flushdns");
+            FlushDns();
         }
         catch
         {
             // Ignore
         }
+    }
+
+    /// <summary>
+    /// Flushes Windows DNS resolver cache.
+    /// </summary>
+    public static void FlushDns()
+    {
+        try
+        {
+            RunCommand("ipconfig", "/flushdns");
+        }
+        catch { }
     }
 
     /// <summary>

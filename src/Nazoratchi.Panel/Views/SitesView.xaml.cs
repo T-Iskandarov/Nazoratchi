@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Nazoratchi.Core.Models;
 using Nazoratchi.Core.Services;
+using Nazoratchi.Panel.Helpers;
 
 namespace Nazoratchi.Panel.Views;
 
@@ -102,6 +103,7 @@ public partial class SitesView : UserControl
         }
 
         _configManager.SaveConfig(config);
+        _ = ServiceManager.RestartServiceSilentlyAsync();
     }
 
     #region Blacklist Actions
@@ -128,6 +130,9 @@ public partial class SitesView : UserControl
         siteList.Sites.Clear();
         siteList.BlacklistSites = newRules;
         _configManager.SaveSites(siteList);
+
+        // Auto-restart service silently so new blacklist takes effect immediately
+        _ = ServiceManager.RestartServiceSilentlyAsync();
 
         _blacklistRules = newRules;
         UpdateBlacklistGrid();
@@ -175,6 +180,7 @@ public partial class SitesView : UserControl
                 siteList.Sites.Clear();
                 siteList.BlacklistSites.RemoveAll(r => r.Domain.Equals(domain, StringComparison.OrdinalIgnoreCase));
                 _configManager.SaveSites(siteList);
+                _ = ServiceManager.RestartServiceSilentlyAsync();
 
                 _blacklistRules = siteList.BlacklistSites;
                 BlacklistTextBox.Text = string.Join(Environment.NewLine, _blacklistRules.Select(r => r.Domain));
@@ -251,6 +257,9 @@ public partial class SitesView : UserControl
         siteList.WhitelistSites = newRules;
         _configManager.SaveSites(siteList);
 
+        // Auto-restart service silently so new whitelist takes effect immediately
+        _ = ServiceManager.RestartServiceSilentlyAsync();
+
         _whitelistRules = newRules;
         UpdateWhitelistGrid();
 
@@ -297,6 +306,7 @@ public partial class SitesView : UserControl
                 siteList.Sites.Clear();
                 siteList.WhitelistSites.RemoveAll(r => r.Domain.Equals(domain, StringComparison.OrdinalIgnoreCase));
                 _configManager.SaveSites(siteList);
+                _ = ServiceManager.RestartServiceSilentlyAsync();
 
                 _whitelistRules = siteList.WhitelistSites;
                 WhitelistTextBox.Text = string.Join(Environment.NewLine, _whitelistRules.Select(r => r.Domain));

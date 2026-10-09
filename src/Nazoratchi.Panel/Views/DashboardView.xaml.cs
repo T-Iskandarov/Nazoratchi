@@ -9,6 +9,8 @@ using Nazoratchi.Core;
 using Nazoratchi.Core.Models;
 using Nazoratchi.Core.Services;
 
+using Nazoratchi.Panel.Helpers;
+
 namespace Nazoratchi.Panel.Views;
 
 public partial class DashboardView : UserControl
@@ -27,6 +29,71 @@ public partial class DashboardView : UserControl
     private void RefreshButton_Click(object sender, RoutedEventArgs e)
     {
         LoadData();
+    }
+
+    private async void StartServiceButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            SetServiceBusy(true);
+            await ServiceManager.StartServiceAsync();
+            LoadData();
+            MessageBox.Show("Xizmat muvaffaqiyatli ishga tushirildi! Saytlar va dasturlar nazorati faollashdi.", "Muvaffaqiyatli", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Xizmatni ishga tushirishda xato: {ex.Message}", "Xato", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            SetServiceBusy(false);
+        }
+    }
+
+    private async void StopServiceButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            SetServiceBusy(true);
+            await ServiceManager.StopServiceAsync();
+            LoadData();
+            MessageBox.Show("Xizmat to'xtatildi.", "Ma'lumot", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Xizmatni to'xtatishda xato: {ex.Message}", "Xato", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            SetServiceBusy(false);
+        }
+    }
+
+    private async void RestartServiceButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            SetServiceBusy(true);
+            await ServiceManager.RestartServiceAsync();
+            LoadData();
+            MessageBox.Show("Xizmat qayta ishga tushirildi.", "Ma'lumot", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Xizmatni qayta ishga tushirishda xato: {ex.Message}", "Xato", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            SetServiceBusy(false);
+        }
+    }
+
+    private void SetServiceBusy(bool isBusy)
+    {
+        StartServiceButton.IsEnabled = !isBusy;
+        StopServiceButton.IsEnabled = !isBusy;
+        RestartServiceButton.IsEnabled = !isBusy;
+        RefreshButton.IsEnabled = !isBusy;
     }
 
     public void LoadData()

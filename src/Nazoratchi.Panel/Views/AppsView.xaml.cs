@@ -58,5 +58,7 @@ public partial class AppsView : UserControl
         var config = _configManager.LoadConfig();
         config.IsAppBlockingEnabled = AppBlockToggle.IsChecked == true;
         _configManager.SaveConfig(config);
+
+        _ = Nazoratchi.Panel.Helpers.ServiceManager.RestartServiceSilentlyAsync();
     }
 }

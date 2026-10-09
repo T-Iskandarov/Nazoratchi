@@ -39,6 +39,7 @@ public class ConfigWatcherWorker : BackgroundService
 
             _watcher.Changed += OnChanged;
             _watcher.Created += OnChanged;
+            _watcher.Renamed += OnRenamed;
 
             _watcher.EnableRaisingEvents = true;
         }
@@ -68,18 +69,24 @@ public class ConfigWatcherWorker : BackgroundService
         }
     }
 
-    private void OnChanged(object sender, FileSystemEventArgs e)
+    private void OnRenamed(object sender, RenamedEventArgs e) => HandleConfigFileChange(e.Name);
+
+    private void OnChanged(object sender, FileSystemEventArgs e) => HandleConfigFileChange(e.Name);
+
+    private void HandleConfigFileChange(string? fileName)
     {
         try
         {
-            _logger.LogInformation("Configuration file changed on disk: {FileName}", e.Name);
-            if (string.Equals(e.Name, "config.json", StringComparison.OrdinalIgnoreCase))
+            _logger.LogInformation("Configuration file changed on disk: {FileName}", fileName);
+            if (string.Equals(fileName, "config.json", StringComparison.OrdinalIgnoreCase))
             {
                 _configManager.LoadConfig();
+                NetworkHelper.FlushDns();
             }
-            else if (string.Equals(e.Name, "sites.json", StringComparison.OrdinalIgnoreCase))
+            else if (string.Equals(fileName, "sites.json", StringComparison.OrdinalIgnoreCase))
             {
                 _configManager.LoadSites();
+                NetworkHelper.FlushDns();
             }
         }
         catch (Exception ex)

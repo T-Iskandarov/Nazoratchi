@@ -183,7 +183,14 @@ public static class SiteMatcher
             }
         }
 
-        // 3. Exact domain or subdomain match (e.g. 'google.com' matches 'google.com' and 'sub.google.com')
+        // 3. Universal keyword match for terms without dots (e.g. "notebooklm", "teachablemachine", "casino")
+        // Matches any domain containing the term anywhere in its name
+        if (!rule.Contains('.') && rule.Length > 1)
+        {
+            return domain.Contains(rule, StringComparison.OrdinalIgnoreCase);
+        }
+
+        // 4. Exact domain or subdomain match (e.g. 'google.com' matches 'google.com' and 'sub.google.com')
         rule = rule.TrimStart('.');
         if (domain == rule || domain.EndsWith("." + rule, StringComparison.OrdinalIgnoreCase))
             return true;

@@ -223,72 +223,7 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Card 3: Service Management -->
-                <Border Background="White" CornerRadius="16" Padding="24,20" Margin="0,0,0,24" 
-                        BorderBrush="#EBF2FC" BorderThickness="1" Effect="{StaticResource CardElevationEffect}">
-                    <StackPanel>
-                        <!-- Header with Circular Badge -->
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                            <Border Background="#EFF6FF" Width="44" Height="44" CornerRadius="22" VerticalAlignment="Center" Margin="0,0,14,0">
-                                <materialDesign:PackIcon Kind="ShieldSyncOutline" Width="22" Height="22" Foreground="#0066FF" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            </Border>
-                            <TextBlock Text="Xizmatni boshqarish" FontSize="18" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
-                        </StackPanel>
 
-                        <!-- Status Indicator Row -->
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16" VerticalAlignment="Center">
-                            <TextBlock Text="Holat: " Foreground="#64748B" VerticalAlignment="Center" FontSize="14" FontWeight="Medium" />
-                            <Border x:Name="ServiceStatusBadge" Background="#F0FDF4" BorderBrush="#BBF7D0" BorderThickness="1" CornerRadius="12" Padding="10,4" Margin="6,0,0,0" VerticalAlignment="Center">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Ellipse x:Name="ServiceStatusDot" Width="9" Height="9" Fill="#16A34A" Margin="0,0,6,0" VerticalAlignment="Center" />
-                                    <TextBlock x:Name="ServiceStatusLabel" Text="Ishlamoqda (Faol)" FontWeight="Bold" Foreground="#16A34A" FontSize="13" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
-
-                        <!-- 3 Action Buttons -->
-                        <WrapPanel x:Name="ServiceButtonsPanel" Orientation="Horizontal">
-                            <!-- Start Button -->
-                            <Button x:Name="StartServiceButton" Click="StartServiceButton_Click" Height="40" Padding="18,0" Margin="0,0,12,8" Cursor="Hand">
-                                <Button.Template>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border Background="#16A34A" CornerRadius="8" Padding="{TemplateBinding Padding}">
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                <materialDesign:PackIcon Kind="Play" Width="18" Height="18" Foreground="White" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                                                <TextBlock Text="ISHGA TUSHIRISH" Foreground="White" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"/>
-                                            </StackPanel>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Button.Template>
-                            </Button>
-
-                            <!-- Stop Button -->
-                            <Button x:Name="StopServiceButton" Click="StopServiceButton_Click" Height="40" Padding="18,0" Margin="0,0,12,8" Cursor="Hand">
-                                <Button.Template>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border Background="#DC2626" CornerRadius="8" Padding="{TemplateBinding Padding}">
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                <materialDesign:PackIcon Kind="Stop" Width="18" Height="18" Foreground="White" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                                                <TextBlock Text="TO'XTATISH" Foreground="White" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"/>
-                                            </StackPanel>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Button.Template>
-                            </Button>
-
-                            <!-- Restart Button -->
-                            <Button x:Name="RestartServiceButton" Click="RestartServiceButton_Click" Style="{StaticResource AppSecondaryButtonStyle}" Margin="0,0,12,8">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <materialDesign:PackIcon Kind="Restart" Width="18" Height="18" Foreground="#0066FF" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="QAYTA ISHGA TUSHIRISH" Foreground="#0066FF" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
-                        </WrapPanel>
-
-                        <!-- Service Operation Progress Bar -->
-                        <ProgressBar x:Name="ServiceOperationProgress" IsIndeterminate="True" Height="4" Margin="0,6,0,0" Visibility="Collapsed" Foreground="#0066FF" />
-                    </StackPanel>
-                </Border>
 
                 <!-- Card 4: About Section -->
                 <Border Background="White" CornerRadius="16" Padding="24,20" Margin="0,0,0,24" 

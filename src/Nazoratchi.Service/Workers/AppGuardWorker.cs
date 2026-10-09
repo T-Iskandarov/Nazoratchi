@@ -50,7 +50,8 @@ public class AppGuardWorker : BackgroundService
     private static readonly HashSet<string> ProtectedProcesses = new(StringComparer.OrdinalIgnoreCase)
     {
         "explorer", "taskmgr", "system", "svchost", "csrss", "winlogon", "services",
-        "lsass", "smss", "dwm", "devenv", "code", "rider", "chrome", "msedge", "firefox", "brave", "opera"
+        "lsass", "smss", "dwm", "devenv", "code", "rider", "chrome", "msedge", "firefox", "brave", "opera",
+        "python", "pythonw", "node", "cmd", "powershell", "pwsh", "git", "dotnet", "bash", "wt"
     };
 
     /// <summary>
