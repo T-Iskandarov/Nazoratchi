@@ -185,6 +185,25 @@ public static class SiteMatcher
 
         // 3. Exact domain or subdomain match (e.g. 'google.com' matches 'google.com' and 'sub.google.com')
         rule = rule.TrimStart('.');
-        return domain == rule || domain.EndsWith("." + rule, StringComparison.OrdinalIgnoreCase);
+        if (domain == rule || domain.EndsWith("." + rule, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        // If rule has www., match against base rule
+        if (rule.StartsWith("www.", StringComparison.OrdinalIgnoreCase) && rule.Length > 4)
+        {
+            var baseRule = rule.Substring(4);
+            if (domain == baseRule || domain.EndsWith("." + baseRule, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        // If query domain has www., match against base domain
+        if (domain.StartsWith("www.", StringComparison.OrdinalIgnoreCase) && domain.Length > 4)
+        {
+            var baseDomain = domain.Substring(4);
+            if (baseDomain == rule || baseDomain.EndsWith("." + rule, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
     }
 }

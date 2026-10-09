@@ -22,11 +22,7 @@ public class DnsFilterWorker : BackgroundService
     private string[] _originalDns = Array.Empty<string>();
 
     private UdpClient? _listenerClient;
-    private UdpClient? _upstreamClient;
     private IPEndPoint _upstreamDns = new IPEndPoint(IPAddress.Parse("8.8.8.8"), 53);
-
-    // Map DNS Transaction ID -> TaskCompletionSource for upstream response demultiplexing
-    private readonly ConcurrentDictionary<ushort, TaskCompletionSource<byte[]>> _pendingQueries = new();
 
     public DnsFilterWorker(ILogger<DnsFilterWorker> logger, ConfigManager configManager, LogService logService)
     {
@@ -86,7 +82,6 @@ public class DnsFilterWorker : BackgroundService
         try
         {
             _listenerClient?.Close();
-            _upstreamClient?.Close();
         }
         catch { }
 
@@ -98,16 +93,12 @@ public class DnsFilterWorker : BackgroundService
         try
         {
             _listenerClient = new UdpClient(53);
-            _upstreamClient = new UdpClient();
         }
         catch (SocketException ex)
         {
             _logger.LogError(ex, "Failed to bind to port 53. DNS filtering is disabled.");
             return;
         }
-
-        // Start background worker for reading responses from upstream DNS
-        var upstreamReceiverTask = ReceiveUpstreamResponsesAsync(stoppingToken);
 
         _logger.LogInformation("DNS filtering service active on 127.0.0.1:53.");
 
@@ -132,8 +123,6 @@ public class DnsFilterWorker : BackgroundService
                 }
             }
         }
-
-        await upstreamReceiverTask;
     }
 
     private async Task ProcessQueryAsync(byte[] queryPacket, IPEndPoint clientEndpoint, CancellationToken stoppingToken)
@@ -158,35 +147,8 @@ public class DnsFilterWorker : BackgroundService
             }
             else
             {
-                // Forward upstream using shared client and transaction ID mapping
-                ushort queryId = (ushort)((queryPacket[0] << 8) | queryPacket[1]);
-                var tcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
-                _pendingQueries[queryId] = tcs;
-
-                try
-                {
-                    if (_upstreamClient != null)
-                    {
-                        await _upstreamClient.SendAsync(queryPacket, queryPacket.Length, _upstreamDns);
-                    }
-
-                    // Await response with 3.5s timeout
-                    var timeoutTask = Task.Delay(3500, stoppingToken);
-                    var completedTask = await Task.WhenAny(tcs.Task, timeoutTask);
-
-                    if (completedTask == tcs.Task)
-                    {
-                        var upstreamResponse = await tcs.Task;
-                        if (_listenerClient != null)
-                        {
-                            await _listenerClient.SendAsync(upstreamResponse, upstreamResponse.Length, clientEndpoint);
-                        }
-                    }
-                }
-                finally
-                {
-                    _pendingQueries.TryRemove(queryId, out _);
-                }
+                // Forward query asynchronously to upstream DNS using isolated client
+                await ForwardQueryAsync(queryPacket, clientEndpoint, stoppingToken);
             }
         }
         catch (Exception ex)
@@ -195,37 +157,30 @@ public class DnsFilterWorker : BackgroundService
         }
     }
 
-    private async Task ReceiveUpstreamResponsesAsync(CancellationToken stoppingToken)
+    private async Task ForwardQueryAsync(byte[] queryPacket, IPEndPoint clientEndpoint, CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            try
-            {
-                if (_upstreamClient == null) break;
+            using var forwardClient = new UdpClient();
+            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
+            timeoutCts.CancelAfter(3000);
 
-                var result = await _upstreamClient.ReceiveAsync(stoppingToken);
-                var buffer = result.Buffer;
+            await forwardClient.SendAsync(queryPacket, queryPacket.Length, _upstreamDns);
+            var responseResult = await forwardClient.ReceiveAsync(timeoutCts.Token);
+            var upstreamResponse = responseResult.Buffer;
 
-                if (buffer.Length >= 12)
-                {
-                    ushort responseId = (ushort)((buffer[0] << 8) | buffer[1]);
-                    if (_pendingQueries.TryGetValue(responseId, out var tcs))
-                    {
-                        tcs.TrySetResult(buffer);
-                    }
-                }
-            }
-            catch (OperationCanceledException)
+            if (_listenerClient != null && upstreamResponse.Length >= 12)
             {
-                break;
+                await _listenerClient.SendAsync(upstreamResponse, upstreamResponse.Length, clientEndpoint);
             }
-            catch (Exception ex)
-            {
-                if (!stoppingToken.IsCancellationRequested)
-                {
-                    _logger.LogTrace(ex, "Error receiving upstream response.");
-                }
-            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Upstream query timed out or service stopping
+        }
+        catch (Exception ex)
+        {
+            _logger.LogTrace(ex, "Error forwarding query to upstream DNS.");
         }
     }
 
