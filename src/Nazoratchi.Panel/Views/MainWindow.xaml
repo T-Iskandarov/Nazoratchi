@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="Nazoratchi — Boshqaruv paneli" MinHeight="620" MinWidth="960" Height="720" Width="1080"
+        WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
         Icon="/Assets/logo.png"
         FontFamily="Segoe UI"
@@ -60,10 +61,9 @@
                 </Grid.RowDefinitions>
 
                 <!-- Brand Header -->
-                <StackPanel Grid.Row="0" Margin="16,22,16,16" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Image Source="/Assets/logo.png" Width="36" Height="36" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality" />
-                    <TextBlock Text="Nazoratchi" FontSize="20" FontWeight="Bold" Foreground="#0F172A" Margin="10,0,0,0" VerticalAlignment="Center" />
-                </StackPanel>
+                <Border Grid.Row="0" Margin="16,16,16,12" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Image Source="/Assets/logo1.png" MaxWidth="190" MaxHeight="95" HorizontalAlignment="Center" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality" />
+                </Border>
 
                 <!-- Navigation -->
                 <ListBox x:Name="NavListBox" Grid.Row="1" SelectionChanged="NavListBox_SelectionChanged" 
