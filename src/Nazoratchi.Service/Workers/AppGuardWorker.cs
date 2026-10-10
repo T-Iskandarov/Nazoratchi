@@ -51,7 +51,8 @@ public class AppGuardWorker : BackgroundService
     {
         "explorer", "taskmgr", "system", "svchost", "csrss", "winlogon", "services",
         "lsass", "smss", "dwm", "devenv", "code", "rider", "chrome", "msedge", "firefox", "brave", "opera",
-        "python", "pythonw", "node", "cmd", "powershell", "pwsh", "git", "dotnet", "bash", "wt"
+        "python", "pythonw", "node", "cmd", "powershell", "pwsh", "git", "dotnet", "bash", "wt",
+        "iscc", "compil32", "innosetup"
     };
 
     /// <summary>

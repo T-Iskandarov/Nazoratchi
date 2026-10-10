@@ -87,6 +87,7 @@ Filename: "{sys}\sc.exe"; Parameters: "delete NazoratchiService"; Flags: runhidd
 
 ; 2. Yangi servisni avtomatik ro'yxatdan o'tkazish
 Filename: "{sys}\sc.exe"; Parameters: "create NazoratchiService binPath= ""{app}\{#MyServiceExeName}"" start= auto DisplayName= ""Nazoratchi Xavfsizlik Xizmati"""; Flags: runhidden waituntilterminated; StatusMsg: "Nazoratchi tizim xizmati ro'yxatdan o'tkazilmoqda..."
+Filename: "{sys}\sc.exe"; Parameters: "failure NazoratchiService reset= 0 actions= restart/5000/restart/5000/restart/5000"; Flags: runhidden waituntilterminated
 
 ; 3. Servisni darhol ishga tushirish
 Filename: "{sys}\sc.exe"; Parameters: "start NazoratchiService"; Flags: runhidden waituntilterminated; StatusMsg: "Nazoratchi tizim xizmati ishga tushirilmoqda..."

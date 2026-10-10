@@ -22,6 +22,7 @@ public class DnsFilterWorker : BackgroundService
     private string[] _originalDns = Array.Empty<string>();
 
     private UdpClient? _listenerClient;
+    private UdpClient? _v6ListenerClient;
     private IPEndPoint _upstreamDns = new IPEndPoint(IPAddress.Parse("8.8.8.8"), 53);
 
     public DnsFilterWorker(ILogger<DnsFilterWorker> logger, ConfigManager configManager, LogService logService)
@@ -58,6 +59,10 @@ public class DnsFilterWorker : BackgroundService
             _originalDns = NetworkHelper.BackupAndGetOriginalDns();
             NetworkHelper.SetSystemDns(Constants.LocalDnsIp);
             _logger.LogInformation("System DNS set to {Dns}", Constants.LocalDnsIp);
+
+            // Subscribe to network interface changes
+            System.Net.NetworkInformation.NetworkChange.NetworkAddressChanged += OnNetworkChanged;
+            System.Net.NetworkInformation.NetworkChange.NetworkAvailabilityChanged += OnNetworkChanged;
         }
         catch (Exception ex)
         {
@@ -71,6 +76,13 @@ public class DnsFilterWorker : BackgroundService
         _logger.LogInformation("DnsFilterWorker stopping...");
         try
         {
+            System.Net.NetworkInformation.NetworkChange.NetworkAddressChanged -= OnNetworkChanged;
+            System.Net.NetworkInformation.NetworkChange.NetworkAvailabilityChanged -= OnNetworkChanged;
+        }
+        catch { }
+
+        try
+        {
             NetworkHelper.RestoreOriginalDns(_originalDns);
             _logger.LogInformation("System DNS restored to original configuration.");
         }
@@ -82,6 +94,12 @@ public class DnsFilterWorker : BackgroundService
         try
         {
             _listenerClient?.Close();
+        }
+        catch { }
+
+        try
+        {
+            _v6ListenerClient?.Close();
         }
         catch { }
 
@@ -102,6 +120,22 @@ public class DnsFilterWorker : BackgroundService
 
         _logger.LogInformation("DNS filtering service active on 127.0.0.1:53.");
 
+        // Attempt to bind IPv6 listener on port 53
+        try
+        {
+            _v6ListenerClient = new UdpClient(AddressFamily.InterNetworkV6);
+            _v6ListenerClient.Client.Bind(new IPEndPoint(IPAddress.IPv6Any, 53));
+            _ = ListenV6LoopAsync(_v6ListenerClient, stoppingToken);
+            _logger.LogInformation("DNS filtering service active on [::1]:53.");
+        }
+        catch
+        {
+            // IPv6 binding optional
+        }
+
+        // Run background watchdog to detect Wi-Fi reconnects or router RDNSS pushes
+        _ = WatchdogLoopAsync(stoppingToken);
+
         while (!stoppingToken.IsCancellationRequested)
         {
             try
@@ -109,7 +143,7 @@ public class DnsFilterWorker : BackgroundService
                 var receiveResult = await _listenerClient.ReceiveAsync(stoppingToken);
                 
                 // Process each query asynchronously so the receive loop is NEVER blocked
-                _ = ProcessQueryAsync(receiveResult.Buffer, receiveResult.RemoteEndPoint, stoppingToken);
+                _ = ProcessQueryAsync(_listenerClient, receiveResult.Buffer, receiveResult.RemoteEndPoint, stoppingToken);
             }
             catch (OperationCanceledException)
             {
@@ -125,7 +159,64 @@ public class DnsFilterWorker : BackgroundService
         }
     }
 
-    private async Task ProcessQueryAsync(byte[] queryPacket, IPEndPoint clientEndpoint, CancellationToken stoppingToken)
+    private async Task ListenV6LoopAsync(UdpClient v6Client, CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                var receiveResult = await v6Client.ReceiveAsync(stoppingToken);
+                _ = ProcessQueryAsync(v6Client, receiveResult.Buffer, receiveResult.RemoteEndPoint, stoppingToken);
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
+            catch (Exception ex)
+            {
+                if (!stoppingToken.IsCancellationRequested)
+                {
+                    _logger.LogTrace(ex, "Error receiving IPv6 DNS packet.");
+                }
+            }
+        }
+    }
+
+    private async Task WatchdogLoopAsync(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                await Task.Delay(10000, stoppingToken);
+                if (!NetworkHelper.IsSystemDnsEnforced())
+                {
+                    _logger.LogInformation("Network change or DNS leak detected. Re-enforcing Nazoratchi DNS...");
+                    NetworkHelper.SetSystemDns(Constants.LocalDnsIp);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogTrace(ex, "Error in DNS watchdog loop.");
+            }
+        }
+    }
+
+    private void OnNetworkChanged(object? sender, EventArgs e)
+    {
+        try
+        {
+            _logger.LogInformation("Network address or adapter change detected. Re-enforcing Nazoratchi DNS...");
+            NetworkHelper.SetSystemDns(Constants.LocalDnsIp);
+        }
+        catch { }
+    }
+
+    private async Task ProcessQueryAsync(UdpClient listener, byte[] queryPacket, IPEndPoint clientEndpoint, CancellationToken stoppingToken)
     {
         try
         {
@@ -140,15 +231,12 @@ public class DnsFilterWorker : BackgroundService
                 _logService.LogSiteBlocked(domain);
 
                 var responsePacket = DnsPacketHelper.BuildBlockedResponse(queryPacket);
-                if (_listenerClient != null)
-                {
-                    await _listenerClient.SendAsync(responsePacket, responsePacket.Length, clientEndpoint);
-                }
+                await listener.SendAsync(responsePacket, responsePacket.Length, clientEndpoint);
             }
             else
             {
                 // Forward query asynchronously to upstream DNS using isolated client
-                await ForwardQueryAsync(queryPacket, clientEndpoint, stoppingToken);
+                await ForwardQueryAsync(listener, queryPacket, clientEndpoint, stoppingToken);
             }
         }
         catch (Exception ex)
@@ -157,7 +245,7 @@ public class DnsFilterWorker : BackgroundService
         }
     }
 
-    private async Task ForwardQueryAsync(byte[] queryPacket, IPEndPoint clientEndpoint, CancellationToken stoppingToken)
+    private async Task ForwardQueryAsync(UdpClient listener, byte[] queryPacket, IPEndPoint clientEndpoint, CancellationToken stoppingToken)
     {
         try
         {
@@ -169,9 +257,9 @@ public class DnsFilterWorker : BackgroundService
             var responseResult = await forwardClient.ReceiveAsync(timeoutCts.Token);
             var upstreamResponse = responseResult.Buffer;
 
-            if (_listenerClient != null && upstreamResponse.Length >= 12)
+            if (upstreamResponse.Length >= 12)
             {
-                await _listenerClient.SendAsync(upstreamResponse, upstreamResponse.Length, clientEndpoint);
+                await listener.SendAsync(upstreamResponse, upstreamResponse.Length, clientEndpoint);
             }
         }
         catch (OperationCanceledException)
