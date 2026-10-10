@@ -33,7 +33,7 @@ Xizmat `Task Manager` orqali o'chirib qo'yilgan taqdirda ham, Windows tomonidan 
 
 Tayyor o'rnatuvchi (Setup) faylini yuklab olib, darhol kompyuteringizga o'rnatishingiz mumkin. Boshqa hech qanday qo'shimcha .NET yoki kutubxona o'rnatish talab qilinmaydi (Self-Contained).
 
-🔗 **[Nazoratchi_Setup.exe ni Yuklab Olish](https://github.com/T-Iskandarov/Nazoratchi/raw/main/Installer/Nazoratchi_Setup.exe)**
+🔗 **[Nazoratchi_Setup.exe ni Yuklab Olish](https://github.com/T-Iskandarov/Nazoratchi/raw/main/installer/Nazoratchi_Setup.exe)**
 
 **O'rnatish jarayoni:**
 1. Yuqoridagi linkdan `.exe` faylni yuklab oling.
