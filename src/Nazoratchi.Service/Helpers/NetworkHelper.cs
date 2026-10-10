@@ -132,13 +132,13 @@ public static class NetworkHelper
                         RunCommand("netsh", $"interface ipv6 set dnsservers name={ifIndex} source=static address=none");
 
                         // Disable IPv6 binding on this adapter so zero IPv6 traffic/DNS can leak
-                        RunCommand("powershell.exe", $"-NoProfile -Command \"Disable-NetAdapterBinding -InterfaceIndex {ifIndex} -ComponentId ms_tcpip6 -ErrorAction SilentlyContinue\"");
+                        RunCommand("powershell.exe", $"-NoProfile -Command \"Get-NetAdapter -InterfaceIndex {ifIndex} | Disable-NetAdapterBinding -ComponentId ms_tcpip6 -ErrorAction SilentlyContinue\"");
                     }
                     else
                     {
                         RunCommand("powershell.exe", $"-NoProfile -Command \"Set-DnsClientServerAddress -InterfaceAlias '{safeName}' -ServerAddresses ('{dnsIp}')\"");
                         RunCommand("netsh", $"interface ipv6 set dnsservers name=\"{safeName}\" source=static address=none");
-                        RunCommand("powershell.exe", $"-NoProfile -Command \"Disable-NetAdapterBinding -Name '{safeName}' -ComponentId ms_tcpip6 -ErrorAction SilentlyContinue\"");
+                        RunCommand("powershell.exe", $"-NoProfile -Command \"Get-NetAdapter -Name '{safeName}' | Disable-NetAdapterBinding -ComponentId ms_tcpip6 -ErrorAction SilentlyContinue\"");
                     }
                 }
             }
@@ -251,7 +251,7 @@ public static class NetworkHelper
                         // Re-enable IPv6 binding and router discovery
                         if (ifIndex > 0)
                         {
-                            RunCommand("powershell.exe", $"-NoProfile -Command \"Enable-NetAdapterBinding -InterfaceIndex {ifIndex} -ComponentId ms_tcpip6 -ErrorAction SilentlyContinue\"");
+                            RunCommand("powershell.exe", $"-NoProfile -Command \"Get-NetAdapter -InterfaceIndex {ifIndex} | Enable-NetAdapterBinding -ComponentId ms_tcpip6 -ErrorAction SilentlyContinue\"");
                             RunCommand("netsh", $"interface ipv6 set interface {ifIndex} rabaseddnsconfig=enabled");
                             RunCommand("netsh", $"interface ipv6 set interface {ifIndex} routerdiscovery=enabled");
                             RunCommand("netsh", $"interface ipv6 set dnsservers name={ifIndex} source=dhcp");
@@ -259,7 +259,7 @@ public static class NetworkHelper
                         }
                         else
                         {
-                            RunCommand("powershell.exe", $"-NoProfile -Command \"Enable-NetAdapterBinding -Name '{safeName}' -ComponentId ms_tcpip6 -ErrorAction SilentlyContinue\"");
+                            RunCommand("powershell.exe", $"-NoProfile -Command \"Get-NetAdapter -Name '{safeName}' | Enable-NetAdapterBinding -ComponentId ms_tcpip6 -ErrorAction SilentlyContinue\"");
                             RunCommand("netsh", $"interface ipv6 set dnsservers name=\"{safeName}\" source=dhcp");
                             RunCommand("powershell.exe", $"-NoProfile -Command \"Set-DnsClientServerAddress -InterfaceAlias '{safeName}' -ResetServerAddresses\"");
                         }
@@ -375,6 +375,8 @@ public static class NetworkHelper
         {
             Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome", "DnsOverHttpsMode", "off");
             Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge", "DnsOverHttpsMode", "off");
+            Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome", "QuicAllowed", 0, RegistryValueKind.DWord);
+            Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge", "QuicAllowed", 0, RegistryValueKind.DWord);
         }
         catch
         {
@@ -389,10 +391,12 @@ public static class NetworkHelper
             using (var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Policies\Google\Chrome", true))
             {
                 key?.DeleteValue("DnsOverHttpsMode", false);
+                key?.DeleteValue("QuicAllowed", false);
             }
             using (var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Policies\Microsoft\Edge", true))
             {
                 key?.DeleteValue("DnsOverHttpsMode", false);
+                key?.DeleteValue("QuicAllowed", false);
             }
         }
         catch

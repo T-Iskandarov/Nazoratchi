@@ -32,6 +32,8 @@ public class DnsFilterWorker : BackgroundService
         _logService = logService;
         UpdateUpstreamDns();
         _configManager.ConfigReloaded += UpdateUpstreamDns;
+        _configManager.ConfigReloaded += HostsFileHelper.ClearNazoratchiBlocks;
+        _configManager.SitesReloaded += HostsFileHelper.ClearNazoratchiBlocks;
     }
 
     private void UpdateUpstreamDns()
@@ -56,6 +58,7 @@ public class DnsFilterWorker : BackgroundService
         _logger.LogInformation("DnsFilterWorker starting...");
         try
         {
+            HostsFileHelper.Initialize();
             _originalDns = NetworkHelper.BackupAndGetOriginalDns();
             NetworkHelper.SetSystemDns(Constants.LocalDnsIp);
             _logger.LogInformation("System DNS set to {Dns}", Constants.LocalDnsIp);
@@ -83,6 +86,7 @@ public class DnsFilterWorker : BackgroundService
 
         try
         {
+            HostsFileHelper.ClearNazoratchiBlocks();
             NetworkHelper.RestoreOriginalDns(_originalDns);
             _logger.LogInformation("System DNS restored to original configuration.");
         }
@@ -229,6 +233,7 @@ public class DnsFilterWorker : BackgroundService
             {
                 _logger.LogInformation("Blocked DNS query for: {Domain}", domain);
                 _logService.LogSiteBlocked(domain);
+                HostsFileHelper.BlockDomain(domain);
 
                 var responsePacket = DnsPacketHelper.BuildBlockedResponse(queryPacket);
                 await listener.SendAsync(responsePacket, responsePacket.Length, clientEndpoint);
