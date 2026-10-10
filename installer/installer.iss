@@ -90,14 +90,17 @@ Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -WindowStyle Hi
 Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -WindowStyle Hidden -Command ""Add-MpPreference -ExclusionProcess '{#MyServiceExeName}'"""; Flags: runhidden waituntilterminated
 Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -WindowStyle Hidden -Command ""Add-MpPreference -ExclusionPath 'C:\Windows\System32\drivers\etc\hosts'"""; Flags: runhidden waituntilterminated
 
-; 3. Yangi servisni avtomatik ro'yxatdan o'tkazish
+; 3. Papkalarga ruxsat berish (Panel sozlamalarni saqlay olishi uchun)
+Filename: "{sys}\icacls.exe"; Parameters: "C:\ProgramData\Nazoratchi /grant ""Users"":(OI)(CI)M /T"; Flags: runhidden waituntilterminated
+
+; 4. Yangi servisni avtomatik ro'yxatdan o'tkazish
 Filename: "{sys}\sc.exe"; Parameters: "create NazoratchiService binPath= ""{app}\{#MyServiceExeName}"" start= auto DisplayName= ""Nazoratchi Xavfsizlik Xizmati"""; Flags: runhidden waituntilterminated; StatusMsg: "Nazoratchi tizim xizmati ro'yxatdan o'tkazilmoqda..."
 Filename: "{sys}\sc.exe"; Parameters: "failure NazoratchiService reset= 0 actions= restart/5000/restart/5000/restart/5000"; Flags: runhidden waituntilterminated
 
-; 4. Servisni darhol ishga tushirish
+; 5. Servisni darhol ishga tushirish
 Filename: "{sys}\sc.exe"; Parameters: "start NazoratchiService"; Flags: runhidden waituntilterminated; StatusMsg: "Nazoratchi tizim xizmati ishga tushirilmoqda..."
 
-; 5. Boshqaruv panelini ochish taklifi
+; 6. Boshqaruv panelini ochish taklifi
 Filename: "{app}\{#MyAppExeName}"; Description: "Nazoratchi Boshqaruv Panelini ishga tushirish"; Flags: nowait postinstall skipifsilent shellexec
 
 [UninstallRun]
