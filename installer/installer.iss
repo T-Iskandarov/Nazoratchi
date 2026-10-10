@@ -85,20 +85,30 @@ Name: "{group}\Dasturni O'chirish (Uninstall)"; Filename: "{uninstallexe}"
 Filename: "{sys}\sc.exe"; Parameters: "stop NazoratchiService"; Flags: runhidden waituntilterminated
 Filename: "{sys}\sc.exe"; Parameters: "delete NazoratchiService"; Flags: runhidden waituntilterminated
 
-; 2. Yangi servisni avtomatik ro'yxatdan o'tkazish
+; 2. Windows Defender uchun "Oq ro'yxat" (Exclusion) larni qo'shish (Antivirus indamasligi uchun)
+Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -WindowStyle Hidden -Command ""Add-MpPreference -ExclusionPath '{app}'"""; Flags: runhidden waituntilterminated; StatusMsg: "Antivirus ruxsatlari sozlanmoqda..."
+Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -WindowStyle Hidden -Command ""Add-MpPreference -ExclusionProcess '{#MyServiceExeName}'"""; Flags: runhidden waituntilterminated
+Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -WindowStyle Hidden -Command ""Add-MpPreference -ExclusionPath 'C:\Windows\System32\drivers\etc\hosts'"""; Flags: runhidden waituntilterminated
+
+; 3. Yangi servisni avtomatik ro'yxatdan o'tkazish
 Filename: "{sys}\sc.exe"; Parameters: "create NazoratchiService binPath= ""{app}\{#MyServiceExeName}"" start= auto DisplayName= ""Nazoratchi Xavfsizlik Xizmati"""; Flags: runhidden waituntilterminated; StatusMsg: "Nazoratchi tizim xizmati ro'yxatdan o'tkazilmoqda..."
 Filename: "{sys}\sc.exe"; Parameters: "failure NazoratchiService reset= 0 actions= restart/5000/restart/5000/restart/5000"; Flags: runhidden waituntilterminated
 
-; 3. Servisni darhol ishga tushirish
+; 4. Servisni darhol ishga tushirish
 Filename: "{sys}\sc.exe"; Parameters: "start NazoratchiService"; Flags: runhidden waituntilterminated; StatusMsg: "Nazoratchi tizim xizmati ishga tushirilmoqda..."
 
-; 4. Boshqaruv panelini ochish taklifi
+; 5. Boshqaruv panelini ochish taklifi
 Filename: "{app}\{#MyAppExeName}"; Description: "Nazoratchi Boshqaruv Panelini ishga tushirish"; Flags: nowait postinstall skipifsilent shellexec
 
 [UninstallRun]
 ; Tizimdan o'chirish paytida servisni to'xtatish va o'chirish
 Filename: "{sys}\sc.exe"; Parameters: "stop NazoratchiService"; Flags: runhidden waituntilterminated; RunOnceId: "StopServiceUninstall"
 Filename: "{sys}\sc.exe"; Parameters: "delete NazoratchiService"; Flags: runhidden waituntilterminated; RunOnceId: "DeleteServiceUninstall"
+
+; O'chirish paytida antivirus istisnolarini ham olib tashlash
+Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -WindowStyle Hidden -Command ""Remove-MpPreference -ExclusionPath '{app}'"""; Flags: runhidden waituntilterminated; RunOnceId: "RemoveAntivirusExclusionDir"
+Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -WindowStyle Hidden -Command ""Remove-MpPreference -ExclusionProcess '{#MyServiceExeName}'"""; Flags: runhidden waituntilterminated; RunOnceId: "RemoveAntivirusExclusionProc"
+Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -WindowStyle Hidden -Command ""Remove-MpPreference -ExclusionPath 'C:\Windows\System32\drivers\etc\hosts'"""; Flags: runhidden waituntilterminated; RunOnceId: "RemoveAntivirusExclusionHosts"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
