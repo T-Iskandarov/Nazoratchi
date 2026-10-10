@@ -1,95 +1,66 @@
-# 🛡️ Nazoratchi - Mukammal Nazorat va Filtrlash Tizimi
-
-<p align="center">
-  <img src="src/Nazoratchi.Panel/Assets/logo.png" alt="Nazoratchi Logo" width="128" height="128" />
-</p>
-
-<p align="center">
-  <b>O'quv markazlari, maktablar va tashkilotlar uchun kompyuter va internetni markazlashgan nazorat qilish tizimi</b>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet" alt=".NET 8.0" />
-  <img src="https://img.shields.io/badge/Platform-Windows%2010%2F11-0078D6?logo=windows" alt="Windows" />
-  <img src="https://img.shields.io/badge/WPF-MaterialDesign-blue" alt="Material Design WPF" />
-  <img src="https://img.shields.io/badge/Author-Tursunpo'lat%20Iskandarov-orange" alt="Author" />
-  <img src="https://img.shields.io/badge/Company-CUBO-1976D2" alt="Company CUBO" />
-</p>
+<div align="center">
+  <img src="installer/assets/app.ico" alt="Nazoratchi Logo" width="100"/>
+  <h1>🛡️ Nazoratchi - Mukammal Tarmoq va Dastur Nazorati</h1>
+  <p>Maktablar, ta'lim markazlari va ota-onalar uchun kompyuterni himoyalash va nazorat qilish tizimi.</p>
+</div>
 
 ---
 
-## 📌 Loyiha Haqida
+## 📌 Loyiha Haqida (About)
+**Nazoratchi** — bu Windows operatsion tizimi uchun mo'ljallangan yopiq va qat'iy nazorat tizimi bo'lib, o'quvchilar yoki foydalanuvchilarning chalg'ishini oldini olish, xavfsiz internet muhitini yaratish va ruxsatsiz dasturlarni ishga tushishini taqiqlash uchun ishlab chiqilgan.
 
-**Nazoratchi** — Windows operatsion tizimi uchun mo'ljallangan, ko'p qatlamli xavfsizlik va cheklovlar tizimi. U o'quv markazlari, maktab sinfxonalari va korporativ muhitlarda foydalanuvchilarning chalg'ishini oldini olish, nomaqbul saytlar hamda dasturlar bilan ishlashni cheklash uchun ishlab chiqilgan.
-
-Tizim **fon xizmati (Windows Service)** va zamonaviy **WPF boshqaruv paneli (Material Design)** dan iborat bo'lib, standart foydalanuvchilar tomonidan o'chirib tashlanishi yoki chetlab o'tilishiga qarshi kuchli himoyaga ega.
-
----
-
-## ✨ Asosiy Imkoniyatlar
-
-### 1. 🌐 DNS Veb-Filtrlash (LeechBlock NG Uslubidagi Qoidalar)
-- **Alohida Qora va Oq ro'yxatlar:** Har bir rejim uchun alohida veb-saytlar ro'yxati boshqariladi.
-- **LeechBlock NG filtrlash sintaksisi:**
-  - `*` — Wildcard (namuna): `*game*`, `*.youtube.com`
-  - `+` — Istisno qoidasi: `+developer.mozilla.org`
-  - `~` — Domen ichidan kalit so'z bo'yicha qidirish: `~bet`, `~casino`
-  - Aniq domenlar va ularning barcha subdomenlarini to'liq bloklash.
-- **Ommaviy kiritish (Bulk Import):** Bir nechta sayt domenlarini yangi qator bilan birdaniga ro'yxatga qo'shish.
-- **Tartiblash va tozalash:** Domenlarni alifbo bo'yicha saralash va qidiruv tizimi.
-- **DNS Cache avtomatik tozalash va DoH (DNS over HTTPS) ni o'chirish** orqali aylanib o'tishlarning oldini olish.
-
-### 2. 🚫 Dasturlar O'rnatilishi va O'chirilishini Cheklash (3 Bosqichli Himoya)
-- **1-bosqich (200ms Window Guardian):** O'rnatish yoki dasturlarni o'chirish oynalarini (`Uninstall`, `O'chirish`, `Удаление`, `Setup`, `Installer`) har 200 millisekundda aniqlab, darhol yopadi.
-- **2-bosqich (Windows Registry Siyosatlari):**
-  - `DisableMSI = 2` — Windows Installer paketlari (msi) butunlay bloklanadi.
-  - `NoAddRemovePrograms = 1` — Boshqaruv panelidagi dasturlarni o'chirish bo'limiga kirish taqiqlanadi.
-- **3-bosqich (WMI Real-time Process Scanner):** Xavfli jarayonlar (`unins000.exe`, `uninstall.exe`, `setup.exe`) paydo bo'lishi bilanoq 1 soniya ichida to'xtatiladi.
-
-### 3. 🔐 Administrator Himoyasi va Qayta Tiklash
-- **SHA-256 + Tuzlangan (Salted) Parol:** Xavfsiz parollash algoritmi.
-- **Qayta Tiklash Kaliti (Recovery Key):** Administrator paroli unutilgan holatda 8 xonali noyob shifrlangan kalit orqali parolni yangilash imkoniyati.
-- Barcha konfiguratsiyalar `C:\ProgramData\Nazoratchi\` papkasida xavfsiz saqlanadi.
-
-### 4. ⚙️ Tizim Arxitekturasi
-- **Nazoratchi.Core:** Ma'lumotlar modeli, konfiguratsiya boshqaruvi, LeechBlock filtri va umumiy yordamchi xizmatlar.
-- **Nazoratchi.Service:** Windows Service foni (LocalSystem darajasida mustaqil ishlaydi, DNS proksi va jarayonlar nazoratchisi).
-- **Nazoratchi.Panel:** Administrator uchun chiroyli va qulay WPF interfeysi (Material Design).
+Dastur fonda ko'rinmas (`NT AUTHORITY\SYSTEM` ruxsati bilan) ishlaydi va o'zining himoya mexanizmlari orqali istalgan urunishlarni, shu jumladan VPN, DNS-Bypass (QUIC, DoH, IPv6) va xavfsizlik sozlamalarini chetlab o'tishni to'liq bloklaydi.
 
 ---
 
-## 🚀 O'rnatish va Ishga Tushirish
+## 🚀 Asosiy Imkoniyatlar (Features)
 
-### Talablar
-- **OT:** Windows 10 / Windows 11 (x64)
-- **Platforma:** [.NET 8.0 SDK / Runtime](https://dotnet.microsoft.com/download/dotnet/8.0)
-- **Huquq:** Administrator huquqlari (Administrator sifatida ishga tushirish talab qilinadi)
+🌐 **Keng qamrovli DNS Filter**  
+Taqiqlangan saytlarga kirishni OS darajasida bloklaydi. Dastur to'g'ridan-to'g'ri `hosts` fayli bilan ishlab, zararli yoki chalg'ituvchi saytlarni (masalan, YouTube, Telegram Web, Instagram) `0.0.0.0` ga yo'naltiradi. 
 
-### Loyihani Kompilyatsiya Qilish
-```powershell
-# Loyihani klonlash
-git clone https://github.com/T-Iskandarov/Nazoratchi.git
-cd Nazoratchi
+🛑 **Bypass (Aylanib o'tish) ga qarshi himoya**  
+Chrome, Edge va boshqa brauzerlardagi **QUIC** protokoli o'chirilgan, shuningdek, **IPv6** tarmog'i adapter darajasida faol bloklanadi. Bu foydalanuvchilar filtrni aylanib o'tishining oldini oladi.
 
-# To'liq yechimni yig'ish (Build)
-dotnet build Nazoratchi.sln -c Release
+🚫 **Dasturlarni cheklash (AppGuard)**  
+Faqatgina ruxsat etilgan dasturlargagina ishlash imkonini beradi. Kompyuterga ruxsatsiz `.exe`, `.msi` o'rnatish, shuningdek Command Prompt (`cmd`), `PowerShell` kabi tizim dasturlari orqali buzishga urinishlar bloklanadi.
+
+⚙️ **Uchib ketmaslik kafolati (Auto-Recovery)**  
+Xizmat `Task Manager` orqali o'chirib qo'yilgan taqdirda ham, Windows tomonidan 5 soniya ichida qayta tiklanadi va ishlashda davom etadi. Xizmatni to'xtatish uchun administrator paroli kiritilishi shart.
+
+---
+
+## 📥 Yuklab Olish (Download & Install)
+
+Tayyor o'rnatuvchi (Setup) faylini yuklab olib, darhol kompyuteringizga o'rnatishingiz mumkin. Boshqa hech qanday qo'shimcha .NET yoki kutubxona o'rnatish talab qilinmaydi (Self-Contained).
+
+🔗 **[Nazoratchi_Setup.exe ni Yuklab Olish](https://github.com/T-Iskandarov/Nazoratchi/raw/main/Installer/Nazoratchi_Setup.exe)**
+
+**O'rnatish jarayoni:**
+1. Yuqoridagi linkdan `.exe` faylni yuklab oling.
+2. Ishga tushiring (U avtomatik ravishda Windows Defender antivirusiga istisnolar qo'shadi va xavfsiz o'rnatiladi).
+3. O'rnatish tugagach, fonda `Nazoratchi.Service` ishga tushadi.
+4. Boshqaruv paneli (Panel) orqali parolni o'rnating va oq/qora ro'yxatlarni sozlang.
+
+---
+
+## 🛠️ Dasturchilar uchun (For Developers)
+
+Loyihani o'zingiz o'zgartirib, yig'ish (build) uchun sizga .NET 8.0 SDK va Inno Setup 6 kerak bo'ladi.
+
+### Arxitektura
+* **`Nazoratchi.Service`** - Orqa fonda ishlovchi Windows Service (C# Worker Service). Tizim qamrovidagi filtrlash (Hosts, DNS) va AppGuard (WMI) vazifalarini bajaradi.
+* **`Nazoratchi.Panel`** - Foydalanuvchi interfeysi (WPF). Parol orqali himoyalangan sozlamalar paneli.
+* **`Nazoratchi.Core`** - Xizmat va Panel o'rtasidagi umumiy modellar, sozlamalar (JSON) va xavfsizlik (AES-256) mantiqlari.
+
+### Kompilyatsiya qilish (Build)
+Loyihani avtomatik yig'ish va Setup yaratish uchun quyidagi scriptni ishga tushiring:
+```bat
+Build_Installer.bat
 ```
-
-### Boshqaruv Bat-fayllari
-- `Panelni_Ochish.bat` — Administrator panelini ochish.
-- `Xizmatni_Yoqish.bat` — Tizim servisini o'rnatish va ishga tushirish.
-- `Xizmatni_Toxtatish.bat` — Servisni to'xtatish va tarmoq sozlamalarini asl holiga qaytarish.
+*(Eslatma: Skript ishlashi uchun kompyuterda `ISCC` (Inno Setup) o'rnatilgan va Environment Variables (PATH) ga qo'shilgan bo'lishi kerak).*
 
 ---
 
-## 👨‍💻 Muallif va Rivojlantiruvchi
-
-- **Dastur Muallifi:** Tursunpo'lat Iskandarov
-- **Ishlab Chiquvchi:** [CUBO](https://cubo.uz) kompaniyasi
-- **Rasmiy Sayt:** [https://cubo.uz](https://cubo.uz)
-
----
-
-## 📄 Litsenziya
-Ushbu loyiha maxsus buyurtma asosida o'quv markazlari xavfsizligi va nazorati uchun ishlab chiqilgan.
-Barcha huquqlar himoyalangan © CUBO.
+## 👨‍💻 Muallif
+**Tursunpo'lat Iskandarov** (CUBO LLC)  
+Tizim o'zbekistonlik ta'lim markazlari ehtiyojlari va xavfsizlik talablariga moslashtirib noldan yozildi.
