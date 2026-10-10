@@ -102,12 +102,20 @@ public class ConfigWatcherWorker : BackgroundService
     {
         try
         {
-            BrowserPolicyHelper.ClearUrlBlocklist();
-            _logger.LogInformation("Ensured browser URLBlocklist policies are cleared (Pure DNS mode).");
+            var rules = new List<string>();
+            var sites = _configManager.LoadSites();
+            
+            if (sites.WhitelistSites != null)
+                rules.AddRange(sites.WhitelistSites.Select(r => r.Domain));
+            if (sites.BlacklistSites != null)
+                rules.AddRange(sites.BlacklistSites.Select(r => r.Domain));
+
+            BrowserPolicyHelper.ApplyUrlBlocklist(rules);
+            _logger.LogInformation("Ensured browser URLBlocklist policies are applied.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error clearing browser policies.");
+            _logger.LogError(ex, "Error syncing browser policies.");
         }
     }
 

@@ -43,13 +43,22 @@ public static class BrowserPolicyHelper
     }
 
     /// <summary>
-    /// URLBlocklist is disabled in favor of pure DNS-level filtering.
-    /// Clears any residual URLBlocklist policies from Google Chrome and Microsoft Edge.
+    /// Applies URLBlocklist policies to Google Chrome and Microsoft Edge.
+    /// Extracts '!' rules and applies them to the registry.
     /// </summary>
     public static void ApplyUrlBlocklist(IEnumerable<string> urlRules, bool blockAiChatbots = false)
     {
-        // Pure DNS-level blocking is preferred. Keep browser registry clean!
-        ClearUrlBlocklist();
+        var rules = ExtractUrlRules(urlRules);
+        
+        if (rules.Count > 0)
+        {
+            ApplyToBrowser(ChromePolicyPath, rules);
+            ApplyToBrowser(EdgePolicyPath, rules);
+        }
+        else
+        {
+            ClearUrlBlocklist();
+        }
     }
 
     private static void ApplyToBrowser(string subKeyPath, List<string> rules)
