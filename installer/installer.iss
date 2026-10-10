@@ -66,8 +66,8 @@ Name: "desktopicon"; Description: "Ish stolida yorliq (shortcut) yaratish"; Grou
 [Files]
 ; Boshqaruv paneli va uning barcha kerakli kutubxonalari
 Source: "..\publish\panel\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-; Fon tizim xizmati (Windows Service)
-Source: "..\publish\service\Nazoratchi.Service.exe"; DestDir: "{app}"; Flags: ignoreversion
+; Fon tizim xizmati (Windows Service) va barcha bog'liqliklar
+Source: "..\publish\service\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; Ikonka fayli
 Source: "assets\app.ico"; DestDir: "{app}"; Flags: ignoreversion
 
